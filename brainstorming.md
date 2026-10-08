@@ -1,4 +1,6 @@
-# Crabenstein — plan
+# imortal vampires spawning frankenstains — plan
+
+Working name, kept because it is funny and fits the night.
 
 From Dusk Till Dawn Hackathon #01 (Agents 007, Prague). Solo. Topic: **Frankenstein**.
 
@@ -46,7 +48,7 @@ Saved process = chain of tools ── run now / schedule daily, no model
 
 ### Vocabulary
 
-Working words used in this plan, with the themed name shown in the product (themed names proposed, not yet confirmed):
+Working words used in this plan, with the themed name shown in the product (themed names accepted for now; may change along the way):
 
 | Plan word | Meaning                                              | Themed name     |
 | --------- | ---------------------------------------------------- | --------------- |
@@ -95,9 +97,18 @@ Working words used in this plan, with the themed name shown in the product (them
 
 ### Running and scheduling
 
-- Saved processes run with **no model**. A failure stops the run and reports where; it does not call an agent.
+- Saved processes run with **no model**. A failure stops the run and reports where. The runner itself never calls an agent; a failed run is handed to a repair monster (below).
 - “Run now” button plus a schedule. For the video, a one-minute schedule stands in for daily.
 - Local on the laptop. No sandbox.
+
+### Repair
+
+- When a recorded tool fails in a daily run, a repair monster **starts by itself**, with nobody asking. It is the **same kind of monster**, not a new agent type: its brief is the failed run (which step, the error, the input, the tool’s code) instead of an interview.
+- It reuses everything that still works and fixes or replaces only the broken tool. This is the reuse rule applied to a failure.
+- Two honest outcomes: **repaired**, or **needs a human** (for example the email names someone who does not exist; that is bad input, not a broken tool).
+- It cannot widen the invitation. A repair that needs a new site is a “needs a human.”
+- **The fix is recorded too.** A repair leaves a new version of the tool on the shelf and a repair record: what failed, on which input, what was changed, and the result. The old version is kept. This is evidence for the submission, it makes the fix visible in the UI, and a later repair monster can read past repairs before starting.
+- **Decided:** a repaired tool goes back into nightly use by itself once both the failed input and the earlier confirmed example pass. The process carries a visible “repaired” mark in the UI. If either example fails, the outcome is “needs a human.”
 
 ### Record mode (fallback)
 
@@ -126,7 +137,8 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 
 - **Look:** Castlevania vampire style, taken from the single-file theme page (dark, blood red, gilt). Only the look is used; the firm and copy in that file are placeholder.
 - **Tone:** an ordinary job told in creepy language. The job itself stays normal.
-- **Real target:** HR and operations admins at small companies who re-type the same details from email into an HR system and then a payroll or banking system. Buyer: their operations manager.
+- **Real target (decided):** mid-size and large legacy companies. The user is the clerk who re-types the same details from email into an HR system and then a payroll or banking system. The buyer is the head of operations who would otherwise pay consultants to map those processes.
+- **Example company:** a spooky twist on a real company, ideally a defunct one (a dead company that still works nights). Candidates: Bloodbuster, Kodark, Tombs R Us, Lichman Brothers. Not chosen yet.
 - **Persona:** Ilona, graveyard-shift HR clerk. One person, three processes she does every night by hand.
 - **For the jury:** our Frankenstein’s monster works the night shift in HR.
 
@@ -146,11 +158,25 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 | 2   | New employee → account in ParaBank                       | Opening their vein in the ledger | OrangeHRM login, find employee       |
 | 3   | Leaver email → end employment in OrangeHRM               | Laying a soul to rest           | Email reader, OrangeHRM login, find  |
 
-- Process 3 is a proposal. Alternative: a nightly payment run in ParaBank (“paying the blood money”), which reuses the ParaBank login instead.
+- Process 3 is decided: offboarding.
+- **Nothing about these processes is hardcoded.** The product takes any interview; the prompts and starting kit are tuned so that these three work well. Say so in the limitations.
 - Emails are fixed-format, so the parsing tool needs no model at run time.
 - **Gmail conditions:** use an existing Gmail MCP server (one we write ourselves is a tool pre-written by the team); a throwaway account, not a personal one; read-only access. Give the Google access setup 45 minutes, then fall back to a local test inbox labelled as simulated.
 - Only checked so far: both sites respond. Logins and the exact forms are unverified.
 - Both are shared public demos: other people reset and delete data, ParaBank especially. Get one process working end to end before starting the next, and record the video the moment a run works.
+
+---
+
+## The pitch angle
+
+- **The comparison:** legacy companies pay consultancies six figures to have their processes mapped, and at the end they own a document. This produces the working job, not the map, for a tiny fraction of that.
+- **Line to try:** “Consultants hand you a map. This hands you the work, done.”
+- **Pay once to teach, nothing to run.** Tokens are spent when a monster learns or repairs. Daily runs use no model, so the cost does not grow with use and does not depend on token prices.
+- **Evidence needed:** tokens per monster run, recorded and turned into a labelled estimate. Cursor reports tokens, not money. The one test run used about 37k input and 6k output tokens plus 448k cached.
+- **Claim it only for simple, repetitive browser work.** Consultancies map messy cross-department processes; this does not replace that, and saying so is the honest-limitations score.
+- **Subsidised tokens, in the pitch (decided):** today’s tokens are sold below cost, so even the teaching is partly paid for by someone else, and this turns that subsidy into real work done in the real economy. Keep it to one sentence, and pair it with “pay once to teach, nothing to run,” so the cost claim still stands if a judge asks what happens when the subsidy ends.
+- **Resolved:** the target is mid-size and large legacy companies, which is where the six-figure comparison applies.
+- **Ask in the interview:** how long the task takes and how often it is done. Hours saved per year is then a number from the user, not from us.
 
 ---
 
@@ -166,9 +192,41 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 
 ---
 
+## What we learned from the two reference projects
+
+Patterns only, restated as our own design choices. No code and no internal detail from either project belongs in this repo.
+
+**From Skill Factory**
+
+- **The key difference to pitch:** there, a recorded skill was a set of instructions that a full agent session re-read and re-performed every time. Here the result is code that runs with no agent at all.
+- **Find elements by role and visible name first,** with a structural selector only as a fallback. Our own test agrees.
+- **After anything that changes the page, wait and look again** before the next action.
+- **Record the voice alongside the clicks, on one clock.** What the person says while doing a step tells us the intent and which values change from day to day. Worth having if record mode is built.
+- **Mask typed passwords at the source.** Fits “no password inside a tool.”
+- **The memorable screen is watching the agent work:** a live list of its actions next to the browser. Our monsters should stream their steps to the UI, not just report at the end.
+- **A custom browser recorder is a large piece of work.** If record mode happens, use the recorder that comes with Playwright.
+- **Track tokens per run from the start.**
+
+**From Cleaness and the platform behind it**
+
+- **Service shape:** web UI; one central service that owns the database and hands out work; a separate place where agents run; live events back to the UI. Ours is the same, smaller: Next viewer, one Node service.
+- **Everything is a run with a status** (pending, running, done, failed), picked up by a dispatcher. Monster runs, daily runs and repair runs can all be the same kind of record.
+- **Keep three things apart:** what exists, what a given process is allowed to use, and the person’s credentials. This is our invitation, and it confirms that logins live outside the tools.
+- **A request to a human is a first-class thing** with its own state, not an error message. That is our seal and our “needs a human.”
+- **Guard against the same job being started twice,** and offer retry after a failure.
+- **A schedule is a stored record per process;** something simple ticks and starts whatever is due.
+- **The interview should pull out steps, systems used and decision points,** plus how long and how often, so the saving can be stated.
+- **Interview in the person’s own language.** A Czech interview in Prague is a cheap, strong touch.
+- **A tool library as one folder per tool** with a short description is enough to search.
+
+---
+
 ## Sources
 
-Clarity (Duvo) and Skill Factory are references for how this kind of thing works. **Understand them; use none of the code.** We build our own.
+Cleaness and Skill Factory are references for how this kind of thing works. **Understand them; use none of the code.** We build our own.
+
+- **Cleaness** is our name for an existing interview-to-process-documentation product. It is the “map” side of the pitch: it ends in a document.
+- **Skill Factory** is an earlier hackathon project that recorded browser work and replayed it with a full agent session each time. Named openly, so judges can see we know the prior art and what we do differently.
 
 ---
 
@@ -188,19 +246,44 @@ Riskiest first.
 
 **Cut rule:** with four hours left, anything not working is dropped. The last hour is the video.
 
-Proposed, not yet confirmed: monsters and the runner live in a plain Node process outside Next (the Next bundler fights code written at run time); Next is the viewer; Postgres holds processes, runs and the shelf index; claw code sits in files.
+Decided: monsters and the runner live in a Node service outside Next (the Next bundler fights code written at run time), with something like Fastify for its HTTP side; Next is the viewer. The platform behind Cleaness may be looked at for how such a service is laid out, never for code. Still proposed: Postgres holds processes, runs and the shelf index; tool code sits in files.
 
 ---
 
-## Demo story (2 minutes, five beats)
+## Demo story (2 minutes, six beats — tight)
 
 1. Shelf is empty. Person talks; processes appear; monsters spawn.
-2. A monster builds its claws; the shelf fills; the user confirms the result.
+2. A monster builds its tools; the shelf fills; the user seals the result.
 3. Same process again: no model, same outcome. Schedule ticks.
-4. Second monster reuses claws from the first and builds only what is missing.
+4. Second monster reuses tools from the first and builds only what is missing.
 5. The “evil.example” email is refused. It only enters where it is invited.
+6. **The last run fails on purpose.** A repair monster is spawned, fixes the one broken tool, and the run passes again.
+
+How to make beat 6 fail honestly on sites we do not control (proposed): change the email layout, for example “Surname:” instead of “Last name:”. The parsing tool breaks, the repair monster patches it. It is real drift, we control it, and it is repeatable.
 
 Evidence for the write-up: repeated runs with identical outcome and no model calls; which claws were created vs reused; one honest failure.
+
+---
+
+## Proven so far (throwaway test, outside the repo)
+
+- A Cursor command-line agent with the Playwright MCP server logged into the OrangeHRM demo, added an employee, and saved a plain Playwright script. One run, about 2.6 minutes, no fix needed.
+- The saved script then ran twice with different names and **no AI**: both succeeded, 13–19 seconds each, returning the new employee id.
+- The script’s own host block worked: pointed at another site, it failed immediately.
+- OrangeHRM demo login is Admin / admin123, shown on its login page. Reliable success signal: the redirect to the employee’s page, not the toast.
+
+Lessons for the build:
+
+- **Model plan (decided):** build and test on the models the plan accepts now; switch to Sonnet for the final runs.
+  - Accepted now (one-word prompt, each answered): `auto`, `composer-2.5`, `cursor-grok-4.6-high`, `grok-4.7-medium`. Only `auto` has been tried on a real browser task.
+  - Sonnet (`claude-sonnet-5-thinking-high`) is refused: the plan’s usage limit is reached until 30 Oct. It needs a spend limit set in the Cursor account before the final runs.
+  - The model name is one setting, so the switch is a one-line change. Leave time to rerun on Sonnet before the video; a different model may behave differently.
+- The MCP server must be enabled once (`cursor-agent mcp enable playwright`) before a non-interactive run.
+- The agent wrote its file to a mistyped path and still reported success. Use short workspace paths and check the file exists after every run.
+- The Playwright MCP origin allowlist says of itself that it is not a security boundary. The invitation must be enforced by our runner, not by the MCP flag or by code the monster wrote.
+- The saved script hardcoded the login. Logins need to come from the runtime.
+- Cursor’s output reports tokens but no cost.
+- Not yet tested: small reusable tools instead of one whole script; a second monster finding and reusing them.
 
 ---
 
@@ -222,19 +305,76 @@ Teacher / job-doer / forge as separate named layers; humans as a skill type; “
 
 ---
 
-## Still open
+## Status
 
-1. **Spawning agent’s tools:** not answered directly. Our design avoids the question: the orchestrator has one ability, spawn.
-2. **Primitives:** answered yes for search and create. Browser actions are our reading of that answer, not an explicit yes.
-3. **Organizers:** does “existing tools” mean the monster’s own shelf only, or also external catalogues such as the Apify Store? The “tools humans use” metaphor leans towards yes, but nobody said so.
-4. **Organizers:** is record mode acceptable, given a human demonstrates the tool?
-5. **Model for the monsters:** Cursor’s command-line agent, decided. Remaining: a first real run driving a browser, and which model to select.
-6. **Inbox:** Gmail, decided. Remaining: which existing Gmail MCP server, and the Google access setup.
-7. **Legacy sites:** OrangeHRM demo and ParaBank, decided. Remaining: verify logins and forms; confirm process 3.
-8. **Is code written before the start allowed** (this scaffold, the designs)?
-9. **Friday:** live demo or video only?
-10. **Exact code-freeze time.**
-11. **Can the ElevenLabs agent call “spawn” as a tool** during the conversation?
-12. **How much of `designs/04-crabenstein-lab` is usable UI** versus a mock-up?
-13. **Themed vocabulary** (familiar, relics, reliquary, invitation, seal): proposed, not confirmed.
-14. **Product name:** repo says zombie crabs, theme file says immortal_vampire_crab, this plan says Crabenstein.
+Planning only. No product code exists: the repo holds the empty scaffold (Next app, db package) and this plan. One throwaway browser test was run outside the repo (see “Proven so far”).
+
+---
+
+## Everything still missing
+
+### Decided since the first list
+
+Name (working), themed vocabulary, process 3 (offboarding), simple starting primitives are fine, Node service with something like Fastify, a failed daily run spawns a repair monster, the demo ends on a failure that triggers repair, the pitch angle (map vs working job).
+
+### Decisions to make
+
+1. **Record mode:** in or out, and whether the organizers accept a human-demonstrated tool.
+2. **Storage:** Postgres for processes, runs and the shelf index, tool code in files. Proposed, not confirmed.
+3. **Is the shelf committed to git?** It must start empty for the demo, but the created tools are evidence for the submission.
+4. **Build model:** start on `auto`; compare Composer and Grok 4.7 on the real task once the starting kit exists.
+5. **Example company name:** Bloodbuster, Kodark, Tombs R Us, Lichman Brothers, or another. To be decided later.
+6. **Trigger for the demo failure:** changed email layout (proposed) or something else.
+
+### Needs action from you
+
+9. Set a spend limit in the Cursor account, or Sonnet stays blocked until 30 Oct.
+10. Create a throwaway Gmail account and do the Google access setup (read-only).
+11. Pick an existing Gmail MCP server.
+12. Claim the Apify and ElevenLabs credits.
+13. Apify through OpenRouter as a fallback model: there is a test script in `scripts/`; its result is not recorded here.
+14. Ask the organizers: do outside catalogues such as the Apify Store count as “existing tools”; is code written before the start allowed; is Friday a live demo or video only; the exact code-freeze time.
+15. Tool versions and the repair record are now part of the design (see Repair); their exact shape belongs with the tool contract and data model below.
+
+### Must be tested (assumed for now)
+
+16. A monster produces **small reusable tools**, not one whole script. Assumed yes; the test produced one whole script.
+17. A **second monster finds and reuses** tools from the first. Assumed yes; untested.
+18. A **repair monster** fixes one broken tool from a failed run. Untested.
+19. Composer and Grok on a real browser task. They have only answered a one-word prompt.
+20. ParaBank: login, forms, and how often the shared demo is reset.
+21. OrangeHRM: the end-of-employment form for process 3.
+22. The ElevenLabs agent can call “spawn” as a tool, and can return each process in a structured form.
+23. Each browser action returns ready-made Playwright code. Only the Cursor agent’s own word so far.
+24. Several monsters running at the same time.
+25. Tokens per monster run, for the cost estimate.
+
+### Design not yet specified
+
+26. **Tool contract:** what a tool receives and returns, and how it declares the sites it touches.
+27. **Process format:** the chain of tools, how one step’s result feeds the next, and what the per-run input is.
+28. **Brief:** exactly what the orchestrator hands a monster (description, sites, success criterion, schedule) and how the interview is turned into that.
+29. **Repair brief:** what a repair monster is handed, and how “repaired” is told apart from “needs a human.”
+30. **The automatic check:** how it is captured when the user confirms.
+31. **Logins:** where they are held and how a tool receives them. A monster sees them while learning; the saved tools must not contain them.
+32. **The invitation:** how the runner enforces it for every saved run, and how a refused attempt is shown.
+33. **Reading Gmail on a daily run without a model:** through the MCP server called directly, or a tool the monster wrote.
+34. **Daily input:** how new emails are picked up and how already-handled ones are skipped, so nobody is entered twice.
+35. **Partial failure:** a run that stops halfway leaves earlier entries in place.
+36. **Process 2 data:** what exactly goes into ParaBank for a new employee.
+37. **Scheduler:** what triggers the daily run.
+38. **Data model:** what is stored about processes, runs, tools and the invitation.
+39. **UI:** screens for the interview, the shelf, processes, runs, the invitation and confirmation; how the theme file is adapted.
+40. **Email format:** the fixed layout of the new-hire and leaver emails, and what sends them.
+
+### Submission
+
+41. Split the plan into implementation steps (next, by agreement).
+42. Time budget against the hours actually left.
+43. Evidence plan: repeated runs with the same outcome and no model, created vs reused tools, tokens per monster, one failure and its repair.
+44. README table: real, simulated, missing. The starting kit listed openly; “tuned for these three processes, not hardcoded.”
+45. Two-minute video script.
+
+### Loose ends
+
+46. Three test employees (“Ilona Test…”) remain on the shared OrangeHRM demo from the browser test.
