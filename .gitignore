@@ -13,3 +13,7 @@ coverage
 
 npm-debug.log*
 .pnpm-debug.log*
+
+# Local lab state. Generated tools remain outside committed source.
+/shelf/
+/.lab/

@@ -1,9 +1,24 @@
-import { Kysely, PostgresDialect } from "kysely";
+import { Kysely, PostgresDialect, sql } from "kysely";
+import type { RawBuilder } from "kysely";
 import { Pool } from "pg";
-import type { DB } from "./schema";
+import type { DB, Json } from "./schema";
 
-export type { DB } from "./schema";
-export { sql } from "kysely";
+export type { DB, Json } from "./schema";
+export { sql };
+export type { Kysely, Transaction } from "kysely";
+
+/** Bind a JS value as jsonb. Avoid `::jsonb` — Kysely treats `:` as a named parameter. */
+export function jsonb(value: unknown): RawBuilder<Json> {
+  return sql<Json>`cast(${JSON.stringify(value)} as jsonb)`;
+}
+
+export function createDatabase(connectionString: string): Kysely<DB> {
+  return new Kysely<DB>({
+    dialect: new PostgresDialect({
+      pool: new Pool({ connectionString }),
+    }),
+  });
+}
 
 function createDb() {
   return new Kysely<DB>({

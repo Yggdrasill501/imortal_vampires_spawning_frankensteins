@@ -3,4 +3,259 @@
  * Please do not edit it manually.
  */
 
-export interface DB {}
+import type { ColumnType } from "kysely";
+
+export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
+
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
+
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export interface HandledItem {
+  at: Generated<Timestamp>;
+  item_id: string;
+  outcome: string;
+  process_id: string;
+  run_id: string;
+}
+
+export interface Interview {
+  continued_from_id: string | null;
+  created_at: Generated<Timestamp>;
+  ended_at: Timestamp;
+  id: Generated<string>;
+  invited_at: Timestamp | null;
+  language: string;
+  read_error: string | null;
+  read_started_at: Timestamp | null;
+  started_at: Timestamp;
+  status: Generated<string>;
+  transcript: Json;
+}
+
+export interface InvitationSite {
+  granted_at: Generated<Timestamp>;
+  kind: string;
+  login_needed: boolean;
+  site: string;
+}
+
+export interface MonsterAction {
+  at: Generated<Timestamp>;
+  id: Generated<string>;
+  kind: string;
+  monster_run_id: string;
+  seq: Generated<Int8>;
+  text: string;
+  tool_name: string | null;
+}
+
+export interface MonsterRun {
+  created_at: Generated<Timestamp>;
+  ended_at: Timestamp | null;
+  failed_run_id: string | null;
+  id: Generated<string>;
+  kind: string;
+  learned_on_item_id: string | null;
+  model: string;
+  process_id: string;
+  reason: string | null;
+  started_at: Timestamp | null;
+  status: Generated<string>;
+  tokens_cached: Generated<Int8>;
+  tokens_input: Generated<Int8>;
+  tokens_output: Generated<Int8>;
+  what_changed: string | null;
+}
+
+export interface MonsterRunTool {
+  monster_run_id: string;
+  origin: string;
+  tool_id: string;
+}
+
+export interface Process {
+  cause_refusal_id: string | null;
+  cause_run_id: string | null;
+  check_description: string | null;
+  check_name: string | null;
+  created_at: Generated<Timestamp>;
+  current_monster_run_id: string | null;
+  description: string;
+  id: Generated<string>;
+  interview_id: string;
+  latest_repair_id: string | null;
+  name: string;
+  next_run_at: Timestamp | null;
+  position: number;
+  reason: string | null;
+  repaired: Generated<boolean>;
+  retired_at: Timestamp | null;
+  schedule_kind: string;
+  schedule_minutes: number | null;
+  schedule_time: string | null;
+  sealed_at: Timestamp | null;
+  status: Generated<string>;
+  success_criterion: string;
+  verification_run_id: string | null;
+}
+
+export interface ProcessSite {
+  kind: string;
+  login_needed: boolean;
+  process_id: string;
+  site: string;
+}
+
+export interface ProcessStep {
+  origin: string;
+  position: number;
+  process_id: string;
+  tool_id: string;
+}
+
+export interface Refusal {
+  at: Generated<Timestamp>;
+  id: Generated<string>;
+  monster_run_id: string | null;
+  process_id: string;
+  run_id: string | null;
+  site: string;
+  stage: string;
+  tool_name: string | null;
+  tool_version: number | null;
+}
+
+export interface Repair {
+  created_at: Generated<Timestamp>;
+  failed_run_id: string;
+  from_version_id: string;
+  id: Generated<string>;
+  item_label: string;
+  monster_run_id: string;
+  process_id: string;
+  reason: string | null;
+  result: string;
+  retry_run_id: string | null;
+  to_version_id: string | null;
+  tool_id: string;
+  what_changed: string;
+  what_failed: string;
+}
+
+export interface Run {
+  created_at: Generated<Timestamp>;
+  duration_ms: number | null;
+  error: string | null;
+  failed_step: number | null;
+  finished_at: Timestamp | null;
+  id: Generated<string>;
+  item_fields: Generated<Json>;
+  item_id: string;
+  item_label: string;
+  kind: string;
+  model_calls: Generated<number>;
+  monster_run_id: string | null;
+  process_id: string;
+  proof_value: string | null;
+  repair_id: string | null;
+  started_at: Timestamp | null;
+  status: Generated<string>;
+  tick_id: string | null;
+}
+
+export interface RunStep {
+  error: string | null;
+  finished_at: Timestamp | null;
+  input: Generated<Json>;
+  position: number;
+  result: Generated<Json>;
+  run_id: string;
+  started_at: Timestamp | null;
+  status: Generated<string>;
+  tool_id: string;
+  tool_version_id: string;
+}
+
+export interface Tick {
+  created_at: Generated<Timestamp>;
+  finished_at: Timestamp | null;
+  id: Generated<string>;
+  kind: string;
+  new_items: number | null;
+  process_id: string;
+  started_at: Timestamp | null;
+  status: Generated<string>;
+}
+
+export interface Tool {
+  created_at: Generated<Timestamp>;
+  created_by_monster_run_id: string;
+  created_for_process_id: string;
+  current_version_id: string | null;
+  description: string;
+  id: Generated<string>;
+  kind: string;
+  name: string;
+}
+
+export interface ToolSite {
+  site: string;
+  tool_id: string;
+}
+
+export interface ToolVersion {
+  became_current_at: Timestamp | null;
+  code_path: string;
+  created_at: Generated<Timestamp>;
+  examples: Generated<Json>;
+  id: Generated<string>;
+  monster_run_id: string;
+  origin_kind: string;
+  tool_id: string;
+  version: number;
+}
+
+export interface VerificationLine {
+  at: Generated<Timestamp>;
+  id: Generated<string>;
+  monster_run_id: string;
+  outcome: Generated<string>;
+  seq: Generated<Int8>;
+  text: string;
+}
+
+export interface DB {
+  handled_item: HandledItem;
+  interview: Interview;
+  invitation_site: InvitationSite;
+  monster_action: MonsterAction;
+  monster_run: MonsterRun;
+  monster_run_tool: MonsterRunTool;
+  process: Process;
+  process_site: ProcessSite;
+  process_step: ProcessStep;
+  refusal: Refusal;
+  repair: Repair;
+  run: Run;
+  run_step: RunStep;
+  tick: Tick;
+  tool: Tool;
+  tool_site: ToolSite;
+  tool_version: ToolVersion;
+  verification_line: VerificationLine;
+}

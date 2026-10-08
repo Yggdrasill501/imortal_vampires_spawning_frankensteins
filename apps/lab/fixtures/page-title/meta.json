@@ -1,0 +1,14 @@
+{
+  "name": "page_title_fixture",
+  "description": "Opens one invited page and returns its title.",
+  "sites": ["fixture.invalid"],
+  "connectors": [],
+  "effect": "reads",
+  "lists_items": false,
+  "input": {
+    "url": "The invited page to open."
+  },
+  "output": {
+    "title": "The page title."
+  }
+}

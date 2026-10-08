@@ -1,0 +1,28 @@
+{
+  "name": "@repo/lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --include ./src src/main.ts",
+    "start": "tsx src/main.ts",
+    "runner": "tsx src/runner/cli.ts",
+    "monster": "tsx src/monster/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "tsx --test src/shelf/validator.test.ts src/runner/runner.test.ts test/service.test.ts"
+  },
+  "dependencies": {
+    "@elevenlabs/client": "^1.27.0",
+    "@fastify/cors": "^11.1.0",
+    "@repo/contract": "workspace:*",
+    "@repo/db": "workspace:*",
+    "fastify": "^5.6.1",
+    "playwright": "1.64.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsx": "^4.23.15",
+    "typescript": "catalog:"
+  }
+}

@@ -18,7 +18,6 @@
     "pg": "^8.23.1"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/pg": "^8.23.1",
     "kysely-codegen": "^0.20.0",
