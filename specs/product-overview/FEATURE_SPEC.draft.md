@@ -268,7 +268,7 @@ any state ──(retire)──▶ retired
 - **failed to learn**: the monster’s result did not pass verification.
 - **sealed**: live and scheduled.
 - **repairing**: a repair monster is working; the schedule waits.
-- **needs a human**: paused, with a reason. Resume sets the stuck item aside and returns to sealed.
+- **needs a human**: paused, with a reason. Reached from repairing when the tool could not be fixed, and directly from sealed when a run is stopped by a refused site (no repair is started). Resume sets the stuck item aside and returns to sealed.
 - **retired**: stopped by the user.
 
 **Run**: `pending → running → passed | failed | refused`.

@@ -149,7 +149,7 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 | System   | Software       | Role                   |
 | -------- | -------------- | ---------------------- |
 | Email    | Gmail          | Where the work arrives |
-| System A | OrangeHRM demo | The HR system          |
+| System A | OrangeHRM (our own private on-demand instance) | The HR system |
 | System B | ParaBank       | The payroll bank       |
 
 | #   | Ordinary job                                             | Told creepily                   | Reuses                               |
@@ -162,8 +162,10 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 - **Nothing about these processes is hardcoded.** The product takes any interview; the prompts and starting kit are tuned so that these three work well. Say so in the limitations.
 - Emails are fixed-format, so the parsing tool needs no model at run time.
 - **Gmail conditions:** use an existing Gmail MCP server (one we write ourselves is a tool pre-written by the team); a throwaway account, not a personal one; read-only access. Give the Google access setup 45 minutes, then fall back to a local test inbox labelled as simulated.
-- Only checked so far: both sites respond. Logins and the exact forms are unverified.
-- Both are shared public demos: other people reset and delete data, ParaBank especially. Get one process working end to end before starting the next, and record the video the moment a run works.
+- **OrangeHRM is decided, on our own private instance** (considered replacing it because the shared demo was messy). Its address and login are in the git-ignored `.env` and never in this repo. It is ours alone: no strangers’ records, nobody else resetting it. It runs version 5.8; the browser test was on the shared demo’s 5.9, so the add-employee flow should be the same but has not been run on this instance.
+- The instance is a trial and will expire; it only needs to last through the demo.
+- ParaBank: only checked that it responds. Login and forms are unverified.
+- ParaBank is a shared public demo: other people reset and delete data. Get one process working end to end before starting the next, and record the video the moment a run works.
 
 ---
 
@@ -187,7 +189,15 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 - **Monsters: Cursor’s command-line agent (decided).** Checked on this laptop: installed, logged in, has a non-interactive mode with JSON output, model selection, and support for MCP servers (the route to a browser). Not yet tested with a real prompt.
 - A monster is one such agent session. Its built-in abilities to write files and run commands are the “write code, run it” primitives; the shelf is a folder it searches and saves into.
 - Budget is the Pro plan plus about $25. Every monster run is a multi-step session, so keep test runs few and pick a cheaper model where it is good enough.
-- Fallbacks if they appear: Apify credits through an OpenRouter integration, Claude Code headless, Codex. Keep the monster behind one interface so swapping is cheap.
+- **Apify credits as a model source (tested by another session):**
+  - Model calls through Apify’s OpenRouter proxy only work from code running **inside an Apify Actor**. From a laptop they are refused.
+  - The repo can start our own Actor through the Apify API: one request that runs it and waits for the result (up to five minutes), or a Standby Actor with a fixed address for many quick calls.
+  - On the free plan the proxy charges about ten times the upstream price, so $100 of credit is roughly $10 of model use. The proxy’s documentation states a cap of 2,048 output tokens per request (not tested).
+  - Cold start is slow (the first call took 37 seconds); warm calls take about a second; it goes cold after 90 seconds idle.
+  - An account whose very first run is the OpenRouter Actor gets flagged for abuse.
+  - A Standby Actor that only forwards requests from the laptop would work but sidesteps the “inside the platform” rule. Ask a mentor before relying on that; putting the real logic in the Actor is the clearly allowed way.
+- **What that means for us:** not a fit for monsters (they need a local browser session, long outputs when writing code, and far more than $10 of model use). A possible fit for the **orchestrator**, which is one small structured call: transcript in, proposed processes out. Use it only if the Cursor budget runs out, since it costs an Actor to build and a slow first call.
+- Other fallbacks if they appear: Claude Code headless, Codex. Keep the monster behind one interface so swapping is cheap.
 - Cursor remote agents: useful for **building** side pieces in parallel tonight; not as the product’s brain (cloud VM, cannot drive a local browser, slow).
 
 ---
@@ -305,6 +315,56 @@ Teacher / job-doer / forge as separate named layers; humans as a skill type; “
 
 ---
 
+## Stretch goal: pick up work from Slack and Linear
+
+Only after the core product exists. Not part of the product overview spec.
+
+**The idea:** the interview stops being the only way work arrives. The product also notices existing tasks in Slack and Linear and puts monsters or saved processes on them.
+
+**How it fits what we already have**
+
+- Slack and Linear are **connectors** in the invitation, like Gmail. Posting back needs write access, granted separately from reading.
+- A message or ticket is an **item**, the same as an email.
+- A doorman step decides what each new item is:
+  - work a sealed process already covers → a normal model-free run;
+  - work nothing covers → a proposed process, which still goes through invitation and seal;
+  - noise or a duplicate → ignored.
+- Matching an item to an existing process by a label or a named command needs no model. Only unfamiliar work costs tokens, once.
+- “Needs a human” and the seal can be asked in the Slack thread where the work came from, and a reply there resumes the same piece of work.
+
+**What the earlier project (Übermensch) taught, patterns only**
+
+- **Opt-in by label.** Only tickets carrying a chosen label are picked up. Nothing is touched by surprise.
+- **Slack without a public address** (a socket connection), and tickets fetched on a timer. No webhooks to set up on a hackathon night.
+- **Every incoming thing lands in one inbox first,** with its outside identity stored as unique, so nothing is picked up twice.
+- **Ignore your own messages everywhere,** or it answers itself in a loop.
+- **Three outcomes for every incoming thing:** answer briefly, make it a task, or ignore it.
+- **Say what you are doing where the work came from:** an acknowledgement in the thread, the ticket moved to in progress, a short summary when done.
+- **A question to a human parks the task;** the reply in that thread resumes the same agent session, not a new one.
+- **Cap the number of workers and the length of a session,** so cost cannot run away.
+- **Do the last step yourself when the agent skips it.** There, the agent sometimes did not open its pull request, so the service did. Same lesson as our “the service verifies everything.”
+- **A mode with no model at all** (scripted questions, rule-based sorting) kept the demo alive without a key.
+- **The first dashboard was too crowded and had to be redone** as one calm column showing what is happening now. Build ours that way from the start.
+
+---
+
+## How to build it in parallel (learned from the same project)
+
+That project was built in four hours by one person running several coding-agent sessions at once. What made it work:
+
+- One short plan plus **one brief per workstream**.
+- **Strict file ownership:** each session may edit only its own files.
+- A small **shared contract** (database shape, configuration, function signatures) written first as stubs, which nobody changes without telling the others.
+- Each session builds and tests against the stubs, with its neighbours mocked.
+- **Sessions do not commit;** the human commits at checkpoints.
+- Only one session installs packages.
+- A fixed **integration slot**, then two rehearsals and a **backup video**.
+- Named traps written down beforehand: answering itself, picking work up twice, runaway cost, secrets, live flakiness.
+
+Our eight part specs map onto this directly: the first one (service and data model) is the shared contract, and the others can then be built side by side.
+
+---
+
 ## Status
 
 Planning only. No product code exists: the repo holds the empty scaffold (Next app, db package) and this plan. One throwaway browser test was run outside the repo (see “Proven so far”).
@@ -332,7 +392,7 @@ Name (working), themed vocabulary, process 3 (offboarding), simple starting prim
 10. Create a throwaway Gmail account and do the Google access setup (read-only).
 11. Pick an existing Gmail MCP server.
 12. Claim the Apify and ElevenLabs credits.
-13. Apify through OpenRouter as a fallback model: there is a test script in `scripts/`; its result is not recorded here.
+13. Apify through OpenRouter: tested and recorded under Models. Open only if we decide to build the orchestrator Actor.
 14. Ask the organizers: do outside catalogues such as the Apify Store count as “existing tools”; is code written before the start allowed; is Friday a live demo or video only; the exact code-freeze time.
 15. Tool versions and the repair record are now part of the design (see Repair); their exact shape belongs with the tool contract and data model below.
 
@@ -378,3 +438,4 @@ Name (working), themed vocabulary, process 3 (offboarding), simple starting prim
 ### Loose ends
 
 46. Three test employees (“Ilona Test…”) remain on the shared OrangeHRM demo from the browser test.
+47. Keys and tokens for the earlier project were pasted into chat sessions and sit in plain text in local history. Rotate any that are still live, and never paste one into this repo.

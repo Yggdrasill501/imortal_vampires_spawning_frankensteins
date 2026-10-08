@@ -228,7 +228,7 @@ Section head: label "What it heard", title "Three tasks. Keep the ones you want.
 
 1. **Transcript.** A closed disclosure "Read the transcript".
 2. **Proposed processes.** One notched card each, in the order they were described. A card shows the name (display), the plain description, the sites it needs as host-name chips, "Proof" with the success criterion in the person's words ("How you know it worked"), and the schedule in words ("Every night at 02:00"). Each card has a ghost button "Strike it out", which turns into "Strike it out? · Yes · Keep it" in place; Yes removes the process and the card collapses.
-3. **The Invitation.** The Invitation form (see Invitation), listing exactly the sites the remaining processes need. Removing a process removes the sites only it needed.
+3. **The Invitation.** The Invitation form (see Invitation), listing exactly the sites the remaining processes need. Removing a process removes the sites only it needed. A site that is already in the Invitation is shown as "already invited", ticked and locked, with "Login held" where a login is held, so nothing has to be typed again.
 4. **The button.** "Invite and start" (blood), with the ash line "This is the moment it is let in. Only these sites, only with these logins."
 
 The button is disabled, and its label says why, in this order of precedence:
@@ -239,7 +239,7 @@ The button is disabled, and its label says why, in this order of precedence:
 | A ticked site needs a login and has none            | "[Site] needs a login"                 |
 | Otherwise                                           | "Invite and start"                     |
 
-Pressing it stores the Invitation, starts the Familiars, and moves to the Lab. If the Invitation is stored but the start fails, the screen says "The Invitation is stored. The Familiars did not start." with the button "Start them".
+Pressing it stores the Invitation, starts the Familiars, and moves to the Lab. What is stored is the complete set: every site already in the Invitation, plus the sites the remaining processes need. A site sent without a login keeps the login already held. Sending only this interview's sites would withdraw sites that sealed processes still need, and the lab service refuses that with one sentence, which is shown beside the button. If the Invitation is stored but the start fails, the screen says "The Invitation is stored. The Familiars did not start." with the button "Start them".
 
 | State                    | What the user sees                                                                                                                                                                                     |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -329,7 +329,7 @@ There is no reject. The only other way out is Retire, at the bottom of the page.
 
 **Needs-a-human panel.** An inverted panel (vellum fill, night text) at the top of the body: the title "Needs a human", the lab service's one sentence, a link to its cause, either "See the run" or "See the refusal", and the button "Resume" (pending form "Resuming…"). Beneath, in ash on the page: "The schedule is paused. Resume sets the stuck item aside: it is not tried again, and the schedule goes on with the next ones. Deal with that one by hand if it matters." Pressing Resume sends `POST /processes/:id/resume`; the chip returns to "Sealed" (with "Repaired" where it applied), the panel goes, and the schedule and "Run now" are live again without a page change. If the next item fails the same way, the ordinary failure or refusal path applies again.
 
-**Retire.** A ghost button "Retire" at the foot of the page, in every state except proposed and retired. It opens a confirmation: title "Retire [name]?", text "Its schedule stops and it leaves Tonight. Its Relics stay in the Reliquary and its runs are kept. This cannot be undone.", buttons "Retire" (blood) and "Keep it". After retiring, the page shows the retired body.
+**Retire.** A ghost button "Retire" at the foot of the page, in every state except retired. It opens a confirmation: title "Retire [name]?", text "Its schedule stops and it leaves Tonight. Its Relics stay in the Reliquary and its runs are kept. This cannot be undone.", buttons "Retire" (blood) and "Keep it". After retiring, the page shows the retired body.
 
 #### Run detail (`/processes/[id]/runs/[runId]`)
 
@@ -495,7 +495,7 @@ There is one user and no sign-in. The app offers a command only in the states wh
 | Run now                         | Process is sealed (repaired or not)                            | Process page                      |
 | Resume                          | Process needs a human                                          | Process page                      |
 | Change a schedule               | Every state except proposed and retired                        | Process page                      |
-| Retire                          | Every state except proposed and retired                        | Process page                      |
+| Retire                          | Every state except retired                                     | Process page                      |
 
 The app itself may never: call an AI model, run a Relic, reach a site other than the lab service and ElevenLabs, store a login after sending it, or change the Invitation from any screen but the two that hold the Invitation form.
 
