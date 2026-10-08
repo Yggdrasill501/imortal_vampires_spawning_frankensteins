@@ -1,4 +1,4 @@
-# imortal-zombie-crabs
+# imortal-vampires-spawning-frankenstains
 
 Turborepo monorepo: Next.js + React + Tailwind on the front, Postgres + Kysely for data.
 
