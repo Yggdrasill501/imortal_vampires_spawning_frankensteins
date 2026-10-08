@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+      }
+      img {
+        max-width: 100%;
+      }
+    </style>
+    <title>Vespertine &amp; Crowe</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;600;800&family=Marcellus+SC&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap"
+    />
+    <style>
+      /* Layout: a painted night-sky hero with the castle on the right and the pitch on the left,
+   then quiet ledger-like bands (figures, offices, covenant, testimony, audience) on near-black. */
+      :root {
+        color-scheme: dark;
+        --night: #0b0710;
+        --crypt: #150c17;
+        --dusk: #34122c;
+        --blood: #a8131f;
+        --ember: #e4532f;
+        --gilt: #c9a35a;
+        --gilt-dim: #6d5632;
+        --vellum: #ecdfc6;
+        --ash: #b3a494;
+        --candle: #f3a53c;
+
+        --display:
+          "Grenze Gotisch", "UnifrakturCook", "Palatino Linotype", Georgia,
+          serif;
+        --body: "Spectral", "Iowan Old Style", Georgia, serif;
+        --label: "Marcellus SC", "Copperplate", Georgia, serif;
+
+        --notch: polygon(
+          14px 0,
+          calc(100% - 14px) 0,
+          100% 14px,
+          100% calc(100% - 14px),
+          calc(100% - 14px) 100%,
+          14px 100%,
+          0 calc(100% - 14px),
+          0 14px
+        );
+        --notch-sm: polygon(
+          8px 0,
+          calc(100% - 8px) 0,
+          100% 8px,
+          100% calc(100% - 8px),
+          calc(100% - 8px) 100%,
+          8px 100%,
+          0 calc(100% - 8px),
+          0 8px
+        );
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--night);
+        color: var(--vellum);
+        font-family: var(--body);
+        font-size: 1.0625rem;
+        line-height: 1.65;
+        overflow-x: hidden;
+      }
+      a {
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--candle);
+        outline-offset: 3px;
+      }
+
+      .wrap {
+        width: 100%;
+        max-width: 72rem;
+        margin-inline: auto;
+        padding-inline: clamp(16px, 4vw, 40px);
+      }
+
+      .label {
+        font-family: var(--label);
+        font-size: 0.82rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gilt);
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--display);
+        font-weight: 600;
+        line-height: 1.02;
+        margin: 0;
+        text-wrap: balance;
+      }
+      h1 {
+        font-size: clamp(2.9rem, 7.2vw, 5.6rem);
+        font-weight: 800;
+        letter-spacing: 0.005em;
+      }
+      h2 {
+        font-size: clamp(2.1rem, 4.4vw, 3.25rem);
+      }
+      h3 {
+        font-size: 1.6rem;
+        line-height: 1.1;
+      }
+      p {
+        margin: 0;
+      }
+
+      .btn {
+        display: inline-block;
+        font-family: var(--label);
+        font-size: 0.86rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 0.95em 1.7em;
+        clip-path: var(--notch-sm);
+        border: 0;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          color 0.2s;
+      }
+      .btn-blood {
+        background: var(--blood);
+        color: var(--vellum);
+      }
+      .btn-blood:hover {
+        background: var(--ember);
+        color: var(--night);
+      }
+      .btn-ghost {
+        background: rgba(236, 223, 198, 0.1);
+        color: var(--vellum);
+      }
+      .btn-ghost:hover {
+        background: var(--vellum);
+        color: var(--night);
+      }
+
+      /* ───────── Hero ───────── */
+      .hero {
+        position: relative;
+        isolation: isolate;
+        min-height: 44rem;
+        display: flex;
+        flex-direction: column;
+      }
+      #scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        display: block;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(
+          90deg,
+          rgba(11, 7, 16, 0.9) 0%,
+          rgba(11, 7, 16, 0.62) 34%,
+          rgba(11, 7, 16, 0) 62%
+        );
+      }
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding-block: 1.5rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        text-decoration: none;
+        font-family: var(--display);
+        font-size: 1.65rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .brand svg {
+        width: 30px;
+        height: 30px;
+        flex: none;
+      }
+      .nav ul {
+        display: flex;
+        gap: 2.2rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .nav ul a {
+        font-family: var(--label);
+        font-size: 0.84rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--vellum);
+      }
+      .nav ul a:hover {
+        color: var(--candle);
+      }
+      .nav .btn {
+        padding: 0.75em 1.2em;
+        font-size: 0.78rem;
+      }
+
+      .pitch {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1.6rem;
+        max-width: 37rem;
+        padding-block: 3.5rem 9rem;
+      }
+      .pitch h1 em {
+        font-style: normal;
+        color: var(--ember);
+      }
+      .pitch .lede {
+        font-size: 1.22rem;
+        line-height: 1.55;
+        max-width: 31rem;
+        color: var(--vellum);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        margin-top: 0.4rem;
+      }
+      .hours {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        color: var(--ash);
+        font-size: 0.95rem;
+      }
+      .hours i {
+        width: 8px;
+        height: 8px;
+        background: var(--candle);
+        transform: rotate(45deg);
+        box-shadow: 0 0 10px var(--ember);
+        flex: none;
+      }
+
+      /* ───────── Ledger band ───────── */
+      .ledger {
+        border-block: 1px solid var(--gilt-dim);
+        background: var(--crypt);
+      }
+      .ledger dl {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin: 0;
+      }
+      .ledger div {
+        padding: 2.2rem 1.2rem;
+        text-align: center;
+        border-left: 1px solid rgba(201, 163, 90, 0.18);
+        min-width: 0;
+      }
+      .ledger div:first-child {
+        border-left: 0;
+      }
+      .ledger dt {
+        font-family: var(--label);
+        font-size: 0.78rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ash);
+      }
+      .ledger dd {
+        margin: 0 0 0.3rem;
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: clamp(2.4rem, 4.6vw, 3.6rem);
+        line-height: 1;
+        color: var(--gilt);
+        font-variant-numeric: tabular-nums;
+      }
+      .ledger dl {
+        display: grid;
+      }
+      .ledger div {
+        display: flex;
+        flex-direction: column-reverse;
+      }
+
+      /* ───────── Sections ───────── */
+      section.band {
+        padding-block: clamp(4.5rem, 9vw, 7.5rem);
+      }
+      .head {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 40rem;
+        margin-bottom: 3.2rem;
+      }
+      .head p {
+        color: var(--ash);
+      }
+      .rule {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        width: 9rem;
+      }
+      .rule::before,
+      .rule::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: var(--gilt-dim);
+      }
+      .rule i {
+        width: 7px;
+        height: 7px;
+        background: var(--blood);
+        transform: rotate(45deg);
+      }
+
+      .offices {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+      }
+      .office {
+        position: relative;
+        clip-path: var(--notch);
+        background: var(--gilt-dim);
+        padding: 2rem 1.6rem 2.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        min-width: 0;
+        transition: background-color 0.25s;
+      }
+      .office::before {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        clip-path: var(--notch);
+        background: linear-gradient(180deg, #1c0f1d 0%, var(--crypt) 55%);
+      }
+      .office > * {
+        position: relative;
+      }
+      .office:hover {
+        background: var(--ember);
+      }
+      .office svg {
+        width: 44px;
+        height: 44px;
+        stroke: var(--gilt);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      .office p {
+        color: var(--ash);
+        font-size: 1rem;
+      }
+      .office .fee {
+        margin-top: auto;
+        padding-top: 0.9rem;
+        border-top: 1px solid rgba(201, 163, 90, 0.2);
+        font-family: var(--label);
+        font-size: 0.76rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gilt);
+      }
+
+      .covenant {
+        background: linear-gradient(
+          180deg,
+          var(--night),
+          #12091a 40%,
+          var(--night)
+        );
+      }
+      .steps {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2.4rem 2rem;
+        counter-reset: step;
+      }
+      .steps li {
+        counter-increment: step;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        padding-top: 1.4rem;
+        border-top: 1px solid var(--gilt-dim);
+        position: relative;
+        min-width: 0;
+      }
+      .steps li::before {
+        content: counter(step, upper-roman);
+        font-family: var(--label);
+        font-size: 2.5rem;
+        line-height: 1;
+        letter-spacing: 0.04em;
+        color: var(--ember);
+      }
+      .steps li::after {
+        content: "";
+        position: absolute;
+        top: -4px;
+        left: 0;
+        width: 7px;
+        height: 7px;
+        background: var(--gilt);
+        transform: rotate(45deg);
+      }
+      .steps p {
+        color: var(--ash);
+        font-size: 1rem;
+      }
+
+      .testimony {
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+      }
+      .rose {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        translate: -50% -50%;
+        width: min(34rem, 92vw);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        opacity: 0.34;
+        z-index: 0;
+        background:
+          radial-gradient(circle, var(--night) 0 11%, transparent 11.5%),
+          radial-gradient(
+            circle,
+            transparent 0 40%,
+            var(--night) 40.5% 43.5%,
+            transparent 44% 66%,
+            var(--night) 66.5% 70%,
+            transparent 70.5%
+          ),
+          repeating-conic-gradient(
+            from 7.5deg,
+            var(--blood) 0 13deg,
+            var(--night) 13deg 15deg,
+            var(--dusk) 15deg 28deg,
+            var(--night) 28deg 30deg
+          );
+        -webkit-mask-image: radial-gradient(circle, #000 55%, transparent 71%);
+        mask-image: radial-gradient(circle, #000 55%, transparent 71%);
+      }
+      .testimony blockquote {
+        position: relative;
+        z-index: 1;
+        margin: 0 auto;
+        max-width: 46rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.6rem;
+      }
+      .testimony blockquote .said {
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: clamp(1.75rem, 3.6vw, 2.7rem);
+        line-height: 1.18;
+        text-wrap: balance;
+      }
+      .testimony footer {
+        color: var(--ash);
+        font-size: 0.98rem;
+      }
+      .testimony footer b {
+        display: block;
+        font-family: var(--label);
+        font-weight: 400;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--gilt);
+        font-size: 0.84rem;
+      }
+
+      .audience {
+        background: var(--crypt);
+        border-top: 1px solid var(--gilt-dim);
+      }
+      .audience .cols {
+        display: grid;
+        grid-template-columns: 5fr 6fr;
+        gap: clamp(2rem, 6vw, 5rem);
+        align-items: start;
+      }
+      .audience .head {
+        margin-bottom: 1.8rem;
+      }
+      .facts {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 1rem;
+      }
+      .facts li {
+        display: grid;
+        grid-template-columns: 7.5rem 1fr;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(201, 163, 90, 0.2);
+      }
+      .facts span:first-child {
+        font-family: var(--label);
+        font-size: 0.78rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--gilt);
+        padding-top: 0.2em;
+      }
+      .facts span:last-child {
+        color: var(--vellum);
+        user-select: all;
+      }
+      form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.1rem;
+        min-width: 0;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        min-width: 0;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      .field label {
+        font-family: var(--label);
+        font-size: 0.76rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ash);
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        font: inherit;
+        color: var(--vellum);
+        background: var(--night);
+        border: 1px solid var(--gilt-dim);
+        border-radius: 0;
+        padding: 0.8rem 0.9rem;
+      }
+      .field textarea {
+        resize: vertical;
+        min-height: 7.5rem;
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--candle);
+        box-shadow: 0 0 0 1px var(--candle);
+      }
+      form .send {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.2rem;
+      }
+      #sealed {
+        color: var(--candle);
+        font-size: 0.98rem;
+      }
+
+      .foot {
+        padding-block: 2.2rem;
+        border-top: 1px solid rgba(201, 163, 90, 0.2);
+        color: var(--ash);
+        font-size: 0.9rem;
+      }
+      .foot .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.6rem 2rem;
+      }
+
+      @media (max-width: 62rem) {
+        .offices,
+        .steps {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .nav ul {
+          display: none;
+        }
+      }
+      @media (max-width: 51rem) {
+        .hero::before {
+          background: linear-gradient(
+            180deg,
+            rgba(11, 7, 16, 0.7) 0%,
+            rgba(11, 7, 16, 0.62) 45%,
+            rgba(11, 7, 16, 0) 68%
+          );
+        }
+        .pitch {
+          padding-block: 2.5rem 22rem;
+        }
+        .ledger dl {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .ledger div:nth-child(3) {
+          border-left: 0;
+        }
+        .ledger div:nth-child(n + 3) {
+          border-top: 1px solid rgba(201, 163, 90, 0.18);
+        }
+        .audience .cols {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 34rem) {
+        .offices,
+        .steps,
+        form {
+          grid-template-columns: 1fr;
+        }
+        .brand {
+          font-size: 1.35rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero" id="top">
+      <canvas id="scene" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <nav class="nav" aria-label="Main">
+          <a class="brand" href="#top">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path
+                d="M16 2 20 12 30 8 24 18 28 30 16 23 4 30 8 18 2 8 12 12Z"
+                fill="#a8131f"
+                stroke="#c9a35a"
+                stroke-width="1.2"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Vespertine &amp; Crowe
+          </a>
+          <ul>
+            <li><a href="#offices">Offices</a></li>
+            <li><a href="#covenant">The Covenant</a></li>
+            <li><a href="#testimony">Testimony</a></li>
+          </ul>
+          <a class="btn btn-blood" href="#audience">Request an audience</a>
+        </nav>
+      </div>
+      <div class="wrap" style="flex: 1; display: flex">
+        <div class="pitch">
+          <p class="label">Custodians of long estates · Est. 1476</p>
+          <h1>Your house, kept while <em>you sleep.</em></h1>
+          <p class="lede">
+            Estate custody, succession and night logistics for families who
+            measure their holdings in centuries. One firm, one covenant, no
+            daylight meetings.
+          </p>
+          <div class="actions">
+            <a class="btn btn-blood" href="#audience">Request an audience</a>
+            <a class="btn btn-ghost" href="#offices">See our offices</a>
+          </div>
+          <p class="hours">
+            <i></i>Chambers open dusk to dawn, Central European Time
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <div class="ledger">
+      <div class="wrap">
+        <dl>
+          <div>
+            <dt>Years in practice</dt>
+            <dd>550</dd>
+          </div>
+          <div>
+            <dt>Estates in custody</dt>
+            <dd>1,204</dd>
+          </div>
+          <div>
+            <dt>Jurisdictions</dt>
+            <dd>37</dd>
+          </div>
+          <div>
+            <dt>Sunrises missed</dt>
+            <dd>0</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <main>
+      <section class="band" id="offices">
+        <div class="wrap">
+          <div class="head">
+            <p class="label">Offices of the house</p>
+            <h2>Four services. One sealed ledger.</h2>
+            <div class="rule"><i></i></div>
+            <p>
+              Every client has a single keeper who answers for the whole estate.
+              You will never explain yourself twice.
+            </p>
+          </div>
+          <div class="offices">
+            <article class="office">
+              <svg viewBox="0 0 44 44" aria-hidden="true">
+                <path
+                  d="M6 40V20l4-4V8h3v4h4V8h3v8l2 2 2-2V8h3v4h4V8h3v8l4 4v20Z"
+                />
+                <path d="M19 40V30a3 3 0 0 1 6 0v10" />
+              </svg>
+              <h3>Estate Custody</h3>
+              <p>
+                Castles, crypts and collections kept in working order. Roofs,
+                wards, staff and taxes are handled before you ask.
+              </p>
+              <p class="fee">From 2% of holdings a year</p>
+            </article>
+            <article class="office">
+              <svg viewBox="0 0 44 44" aria-hidden="true">
+                <path
+                  d="M12 5h20M12 39h20M14 5c0 9 8 12 8 17s-8 8-8 17M30 5c0 9-8 12-8 17s8 8 8 17"
+                />
+                <path d="M18 34h8" />
+              </svg>
+              <h3>Succession</h3>
+              <p>
+                Deeds outlive the names on them. We re-paper titles and
+                identities each generation so nothing ever lapses.
+              </p>
+              <p class="fee">Renewed every 60 years</p>
+            </article>
+            <article class="office">
+              <svg viewBox="0 0 44 44" aria-hidden="true">
+                <path d="M15 5h14l8 10v14l-8 10H15L7 29V15Z" />
+                <path d="M22 12v18M16 18h12" />
+              </svg>
+              <h3>Night Logistics</h3>
+              <p>
+                Sealed coaches, lightless freight and border papers. Door to
+                door between dusk and dawn, anywhere in Europe.
+              </p>
+              <p class="fee">Quoted per crossing</p>
+            </article>
+            <article class="office">
+              <svg viewBox="0 0 44 44" aria-hidden="true">
+                <circle cx="14" cy="15" r="8" />
+                <path d="M20 21 38 39M30 31l4-4M34 35l3-3" />
+                <circle cx="14" cy="15" r="2.5" />
+              </svg>
+              <h3>Discreet Counsel</h3>
+              <p>
+                Hunters, clergy and creditors are met at our door so that none
+                of them reaches yours. Settled quietly, in writing.
+              </p>
+              <p class="fee">Retainer, billed at solstice</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="band covenant" id="covenant">
+        <div class="wrap">
+          <div class="head">
+            <p class="label">The Covenant</p>
+            <h2>From first letter to full custody in four nights.</h2>
+            <div class="rule"><i></i></div>
+          </div>
+          <ol class="steps">
+            <li>
+              <h3>Invitation</h3>
+              <p>
+                You write to us. A keeper replies within three nights and comes
+                only when invited in.
+              </p>
+            </li>
+            <li>
+              <h3>Survey by candlelight</h3>
+              <p>
+                We walk every hall and vault, then count what is owned, what is
+                owed and what is buried.
+              </p>
+            </li>
+            <li>
+              <h3>The signing</h3>
+              <p>
+                Terms are set down in plain language and signed in ink. Only
+                ink, since the reforms of 1702.
+              </p>
+            </li>
+            <li>
+              <h3>Custody</h3>
+              <p>
+                Your keeper takes the keys. A sealed ledger arrives each quarter
+                at dusk, whether you are awake or not.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="band testimony" id="testimony">
+        <div class="rose" aria-hidden="true"></div>
+        <div class="wrap">
+          <blockquote>
+            <p class="label">Testimony</p>
+            <p class="said">
+              I slept for ninety years. When I woke the roof was sound, the
+              taxes were paid and the cellar had improved.
+            </p>
+            <footer><b>Countess E. of Styria</b>Client since 1793</footer>
+          </blockquote>
+        </div>
+      </section>
+
+      <section class="band audience" id="audience">
+        <div class="wrap cols">
+          <div>
+            <div class="head">
+              <p class="label">Request an audience</p>
+              <h2>Write to us. We answer after dark.</h2>
+              <div class="rule"><i></i></div>
+              <p>
+                Tell us about the estate and how long you expect to be away.
+                Everything you send is read by one keeper and no one else.
+              </p>
+            </div>
+            <ul class="facts">
+              <li>
+                <span>Chambers</span><span>Strada Corbului 13, Târgoviște</span>
+              </li>
+              <li>
+                <span>Hours</span
+                ><span>Dusk to dawn, every night but Easter</span>
+              </li>
+              <li>
+                <span>By raven</span
+                ><span>keeper@vespertine-crowe.example</span>
+              </li>
+            </ul>
+          </div>
+          <form id="audience-form" novalidate>
+            <div class="field">
+              <label for="f-name">Name</label
+              ><input id="f-name" name="name" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="f-house">House or title</label
+              ><input id="f-house" name="house" />
+            </div>
+            <div class="field full">
+              <label for="f-office">Office required</label>
+              <select id="f-office" name="office">
+                <option>Estate Custody</option>
+                <option>Succession</option>
+                <option>Night Logistics</option>
+                <option>Discreet Counsel</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="f-letter">Your letter</label
+              ><textarea id="f-letter" name="letter" required></textarea>
+            </div>
+            <div class="send">
+              <button class="btn btn-blood" type="submit">Seal and send</button>
+              <span id="sealed" role="status"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <span
+          >© 1476–2026 Vespertine &amp; Crowe, Custodians of Long Estates</span
+        >
+        <span>A fictional firm. Concept design.</span>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var c = document.getElementById("scene"),
+          x = c.getContext("2d");
+        var bg = document.createElement("canvas"),
+          g = bg.getContext("2d");
+        var W = 0,
+          H = 0,
+          dpr = 1,
+          cx = 0,
+          base = 0,
+          s = 1,
+          moon = {};
+        var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var INK = "#08040b",
+          RIM = "#4a1626";
+
+        function rng(seed) {
+          return function () {
+            seed = (seed * 1664525 + 1013904223) >>> 0;
+            return seed / 4294967296;
+          };
+        }
+
+        function ridge(y, amp, step, color, seed, pines) {
+          var R = rng(seed),
+            p1 = R() * 6,
+            p2 = R() * 6;
+          g.fillStyle = color;
+          g.beginPath();
+          g.moveTo(0, H);
+          for (var px = 0; px <= W + step; px += step) {
+            var n =
+              Math.sin(px * 0.006 + p1) * 0.55 +
+              Math.sin(px * 0.017 + p2) * 0.3 +
+              (R() - 0.5) * 0.3;
+            var py = y - amp * n;
+            if (pines) {
+              var h = 16 + R() * 34;
+              g.lineTo(px - step * 0.45, py);
+              g.lineTo(px, py - h);
+              g.lineTo(px + step * 0.45, py);
+            } else g.lineTo(px, py);
+          }
+          g.lineTo(W, H);
+          g.closePath();
+          g.fill();
+        }
+
+        function clouds() {
+          var R = rng(77);
+          for (var i = 0; i < 9; i++) {
+            var x0 = R() * W,
+              y0 = H * (0.1 + R() * 0.42),
+              len = 140 + R() * 260,
+              th = 9 + R() * 16;
+            for (var pass = 0; pass < 2; pass++) {
+              g.fillStyle = pass ? "#1d0a1f" : "#8e1a25";
+              var Q = rng(900 + i);
+              for (var k = 0; k < 9; k++) {
+                var ex = x0 + (k / 8 - 0.5) * len,
+                  ey = y0 + (Q() - 0.5) * th * 0.6 + (pass ? 0 : 3.5);
+                g.beginPath();
+                g.ellipse(
+                  ex,
+                  ey,
+                  len / 9 + Q() * 22,
+                  th * (0.5 + Q() * 0.6),
+                  0,
+                  0,
+                  7,
+                );
+                g.fill();
+              }
+            }
+          }
+        }
+
+        function castle() {
+          var R = rng(1476);
+          var T = [
+            [-225, 28, 100, 55],
+            [220, 30, 110, 60],
+            [-160, 34, 150, 70],
+            [160, 36, 170, 80],
+            [-90, 40, 220, 90],
+            [85, 46, 250, 110],
+            [-40, 26, 340, 100],
+            [45, 22, 370, 120],
+            [0, 70, 300, 130],
+          ];
+          // crag
+          g.fillStyle = INK;
+          g.beginPath();
+          var pts = [
+            [-390, 400],
+            [-330, 150],
+            [-290, 70],
+            [-262, 20],
+            [-245, 0],
+            [245, 0],
+            [268, 30],
+            [300, 95],
+            [345, 170],
+            [420, 400],
+          ];
+          pts.forEach(function (p, i) {
+            g[i ? "lineTo" : "moveTo"](cx + p[0] * s, base + p[1] * s);
+          });
+          g.closePath();
+          g.fill();
+          // curtain wall with battlements
+          g.fillRect(cx - 240 * s, base - 62 * s, 480 * s, 64 * s);
+          for (var b = -240; b < 240; b += 16)
+            g.fillRect(cx + b * s, base - 71 * s, 9 * s, 10 * s);
+          T.forEach(function (t) {
+            var w = t[1] * s,
+              h = t[2] * s,
+              sp = t[3] * s,
+              x0 = cx + t[0] * s - w / 2,
+              y0 = base - h,
+              mid = x0 + w / 2;
+            g.fillStyle = INK;
+            g.fillRect(x0, y0, w, h);
+            g.fillRect(x0 - 4 * s, y0 - 9 * s, w + 8 * s, 11 * s);
+            g.beginPath();
+            g.moveTo(x0 - 6 * s, y0 - 8 * s);
+            g.lineTo(mid, y0 - 8 * s - sp);
+            g.lineTo(x0 + w + 6 * s, y0 - 8 * s);
+            g.fill();
+            g.fillRect(
+              mid - 0.8 * s,
+              y0 - 8 * s - sp - 14 * s,
+              1.6 * s,
+              16 * s,
+            );
+            // moonlit rim, cel style
+            g.fillStyle = RIM;
+            g.fillRect(x0, y0 + 2 * s, 2.2 * s, h - 2 * s);
+            g.beginPath();
+            g.moveTo(x0 - 6 * s, y0 - 8 * s);
+            g.lineTo(mid, y0 - 8 * s - sp);
+            g.lineTo(x0 - 1 * s, y0 - 8 * s);
+            g.fill();
+            // lit lancet windows
+            g.fillStyle = "#f3a53c";
+            g.shadowColor = "#e4532f";
+            g.shadowBlur = 9 * s;
+            for (var k = 0, n = Math.floor(t[2] / 46); k < n; k++) {
+              if (R() > 0.55) continue;
+              var wx = x0 + w * (0.3 + R() * 0.4),
+                wy = y0 + (22 + k * 44) * s,
+                ww = 4.2 * s,
+                wh = 11 * s;
+              g.beginPath();
+              g.moveTo(wx - ww / 2, wy + wh);
+              g.lineTo(wx - ww / 2, wy + 3 * s);
+              g.lineTo(wx, wy);
+              g.lineTo(wx + ww / 2, wy + 3 * s);
+              g.lineTo(wx + ww / 2, wy + wh);
+              g.fill();
+            }
+            g.shadowBlur = 0;
+          });
+          // great gate
+          g.fillStyle = "#f3a53c";
+          g.shadowColor = "#e4532f";
+          g.shadowBlur = 16 * s;
+          g.beginPath();
+          g.moveTo(cx - 8 * s, base);
+          g.lineTo(cx - 8 * s, base - 22 * s);
+          g.lineTo(cx, base - 34 * s);
+          g.lineTo(cx + 8 * s, base - 22 * s);
+          g.lineTo(cx + 8 * s, base);
+          g.fill();
+          g.shadowBlur = 0;
+        }
+
+        function paint() {
+          var r = c.getBoundingClientRect();
+          W = Math.max(1, r.width);
+          H = Math.max(1, r.height);
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          [c, bg].forEach(function (k) {
+            k.width = Math.round(W * dpr);
+            k.height = Math.round(H * dpr);
+          });
+          g.setTransform(dpr, 0, 0, dpr, 0, 0);
+          x.setTransform(dpr, 0, 0, dpr, 0, 0);
+          var wide = W > 820;
+          s = Math.min(H / 700, wide ? 1.25 : W / 800);
+          cx = wide ? W * 0.72 : W * 0.5;
+          base = H * (wide ? 0.84 : 0.87);
+          moon = { x: cx - 30 * s, y: base - 325 * s, r: 152 * s };
+
+          var sky = g.createLinearGradient(0, 0, 0, H);
+          sky.addColorStop(0, "#0b0613");
+          sky.addColorStop(0.3, "#2a0c26");
+          sky.addColorStop(0.58, "#74121f");
+          sky.addColorStop(0.8, "#c9361f");
+          sky.addColorStop(1, "#e4532f");
+          g.fillStyle = sky;
+          g.fillRect(0, 0, W, H);
+
+          var S = rng(5);
+          for (var i = 0; i < 110; i++) {
+            g.fillStyle = "rgba(236,223,198," + (0.25 + S() * 0.6) + ")";
+            var z = S() * 1.4 + 0.3;
+            g.fillRect(S() * W, S() * H * 0.45, z, z);
+          }
+
+          var halo = g.createRadialGradient(
+            moon.x,
+            moon.y,
+            moon.r * 0.9,
+            moon.x,
+            moon.y,
+            moon.r * 2.6,
+          );
+          halo.addColorStop(0, "rgba(255,170,110,.42)");
+          halo.addColorStop(1, "rgba(255,120,80,0)");
+          g.fillStyle = halo;
+          g.fillRect(0, 0, W, H);
+          g.fillStyle = "#dcb78a";
+          g.beginPath();
+          g.arc(moon.x, moon.y, moon.r, 0, 7);
+          g.fill();
+          g.save();
+          g.clip();
+          g.fillStyle = "#f5e7cb";
+          g.beginPath();
+          g.arc(
+            moon.x - moon.r * 0.09,
+            moon.y - moon.r * 0.07,
+            moon.r * 0.97,
+            0,
+            7,
+          );
+          g.fill();
+          g.fillStyle = "rgba(190,140,100,.28)";
+          [
+            [-0.35, -0.3, 0.16],
+            [0.2, -0.45, 0.1],
+            [-0.5, 0.2, 0.12],
+            [0.05, 0.1, 0.2],
+            [0.45, 0.05, 0.08],
+          ].forEach(function (m) {
+            g.beginPath();
+            g.arc(
+              moon.x + m[0] * moon.r,
+              moon.y + m[1] * moon.r,
+              m[2] * moon.r,
+              0,
+              7,
+            );
+            g.fill();
+          });
+          g.restore();
+
+          clouds();
+          ridge(H * 0.74, 46, 26, "#4a0f22", 11, false);
+          ridge(H * 0.82, 38, 22, "#240a1a", 23, false);
+          castle();
+          ridge(H * 0.95, 16, 15, "#07040a", 41, true);
+          var fade = g.createLinearGradient(0, H * 0.86, 0, H);
+          fade.addColorStop(0, "rgba(11,7,16,0)");
+          fade.addColorStop(1, "#0b0710");
+          g.fillStyle = fade;
+          g.fillRect(0, H * 0.86, W, H * 0.14 + 1);
+        }
+
+        var B = rng(31),
+          bats = [],
+          embers = [];
+        for (var i = 0; i < 11; i++)
+          bats.push({
+            u: B(),
+            v: B(),
+            sp: 14 + B() * 26,
+            ph: B() * 6,
+            z: 7 + B() * 12,
+          });
+        for (var j = 0; j < 34; j++)
+          embers.push({
+            u: B(),
+            sp: 10 + B() * 22,
+            ph: B() * 6,
+            z: 0.8 + B() * 1.6,
+          });
+
+        function bat(bx, by, z, f) {
+          x.save();
+          x.translate(bx, by);
+          x.fillStyle = INK;
+          x.beginPath();
+          x.moveTo(0, -z * 0.15);
+          [1, -1].forEach(function (d) {
+            x.lineTo(d * z * 0.12, -z * 0.32);
+            x.lineTo(d * z * 0.16, -z * 0.1);
+            x.quadraticCurveTo(
+              d * z * 0.7,
+              -z * 0.75 * f,
+              d * z * 1.35,
+              -z * 0.25 * f,
+            );
+            x.quadraticCurveTo(d * z * 1.0, z * 0.02, d * z * 0.82, z * 0.3);
+            x.quadraticCurveTo(d * z * 0.6, z * 0.05, d * z * 0.42, z * 0.3);
+            x.quadraticCurveTo(d * z * 0.22, z * 0.08, 0, z * 0.34);
+            x.lineTo(0, -z * 0.15);
+          });
+          x.fill();
+          x.restore();
+        }
+
+        function frame(ms) {
+          var t = ms / 1000;
+          x.clearRect(0, 0, W, H);
+          x.drawImage(bg, 0, 0, W, H);
+          embers.forEach(function (e) {
+            var ey = H - ((t * e.sp + e.ph * 90) % (H * 0.5)),
+              ex = e.u * W + Math.sin(t * 0.8 + e.ph) * 14;
+            x.fillStyle =
+              "rgba(243,165,60," +
+              (0.7 * (1 - (H - ey) / (H * 0.5))).toFixed(3) +
+              ")";
+            x.fillRect(ex, ey, e.z, e.z);
+          });
+          bats.forEach(function (b) {
+            var span = moon.r * 5.2,
+              bx = moon.x - span / 2 + ((b.u * span + t * b.sp) % span);
+            var by =
+              moon.y -
+              moon.r * 0.9 +
+              b.v * moon.r * 1.9 +
+              Math.sin(t * 0.9 + b.ph) * 12;
+            bat(bx, by, b.z * s, Math.sin(t * 9 + b.ph));
+          });
+          if (!still) requestAnimationFrame(frame);
+        }
+
+        function boot() {
+          paint();
+          if (still) frame(1400);
+        }
+        boot();
+        if (!still) requestAnimationFrame(frame);
+        if (window.ResizeObserver) new ResizeObserver(boot).observe(c);
+        else addEventListener("resize", boot);
+        if (document.fonts && document.fonts.ready)
+          document.fonts.ready.then(boot);
+
+        var form = document.getElementById("audience-form"),
+          sealed = document.getElementById("sealed");
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var name = document.getElementById("f-name"),
+            letter = document.getElementById("f-letter");
+          if (!name.value.trim()) {
+            sealed.textContent =
+              "Add your name so the keeper knows whom to answer.";
+            name.focus();
+            return;
+          }
+          if (!letter.value.trim()) {
+            sealed.textContent = "Write a line or two about the estate first.";
+            letter.focus();
+            return;
+          }
+          sealed.textContent =
+            "Sealed. This is a concept page, so nothing was actually sent.";
+        });
+      })();
+    </script>
+  </body>
+</html>

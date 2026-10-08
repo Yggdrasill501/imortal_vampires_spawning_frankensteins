@@ -1,0 +1,27 @@
+{
+  "name": "imortal-zombie-crabs",
+  "private": true,
+  "packageManager": "pnpm@11.28.5",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @repo/db migrate",
+    "db:migrate:down": "pnpm --filter @repo/db migrate:down",
+    "db:migrate:make": "pnpm --filter @repo/db migrate:make",
+    "db:codegen": "pnpm --filter @repo/db codegen"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "turbo": "^2.11.7"
+  }
+}
