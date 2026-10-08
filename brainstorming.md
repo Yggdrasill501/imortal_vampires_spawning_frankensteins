@@ -150,12 +150,11 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 | -------- | -------------- | ---------------------- |
 | Email    | Gmail          | Where the work arrives |
 | System A | OrangeHRM (our own private on-demand instance) | The HR system |
-| System B | ParaBank       | The payroll bank       |
 
 | #   | Ordinary job                                             | Told creepily                   | Reuses                               |
 | --- | -------------------------------------------------------- | ------------------------------- | ------------------------------------ |
 | 1   | New-hire email → employee record in OrangeHRM            | Binding a fresh soul            | Nothing; shelf is empty              |
-| 2   | New employee → account in ParaBank                       | Opening their vein in the ledger | OrangeHRM login, find employee       |
+| 2   | Leave-request email → book leave in OrangeHRM            | Granting a reprieve             | OrangeHRM login                      |
 | 3   | Leaver email → end employment in OrangeHRM               | Laying a soul to rest           | Email reader, OrangeHRM login, find  |
 
 - Process 3 is decided: offboarding.
@@ -164,8 +163,6 @@ Vampire lore as the rule: nothing crosses a threshold uninvited. The monster can
 - **Gmail conditions:** use an existing Gmail MCP server (one we write ourselves is a tool pre-written by the team); a throwaway account, not a personal one; read-only access. Give the Google access setup 45 minutes, then fall back to a local test inbox labelled as simulated.
 - **OrangeHRM is decided, on our own private instance** (considered replacing it because the shared demo was messy). Its address and login are in the git-ignored `.env` and never in this repo. It is ours alone: no strangers’ records, nobody else resetting it. It runs version 5.8; the browser test was on the shared demo’s 5.9, so the add-employee flow should be the same but has not been run on this instance.
 - The instance is a trial and will expire; it only needs to last through the demo.
-- ParaBank: only checked that it responds. Login and forms are unverified.
-- ParaBank is a shared public demo: other people reset and delete data. Get one process working end to end before starting the next, and record the video the moment a run works.
 
 ---
 
@@ -247,7 +244,7 @@ Riskiest first.
 1. Model access, and the organizers’ answers.
 2. Starting kit: create, search and run a claw; a browser; the tank.
 3. Process 1 (email → A), built by a monster from an empty shelf.
-4. Process 2 (A → B), reusing claws from process 1.
+4. Process 2 (leave request in A), reusing claws from process 1.
 5. Confirmation, saved chain rerun, schedule.
 6. UI and voice interview.
 7. Extra examples, the failure case, limitations table.
@@ -402,7 +399,7 @@ Name (working), themed vocabulary, process 3 (offboarding), simple starting prim
 17. A **second monster finds and reuses** tools from the first. Assumed yes; untested.
 18. A **repair monster** fixes one broken tool from a failed run. Untested.
 19. Composer and Grok on a real browser task. They have only answered a one-word prompt.
-20. ParaBank: login, forms, and how often the shared demo is reset.
+20. OrangeHRM: the leave form for process 2, and a leave type with a balance for the employee.
 21. OrangeHRM: the end-of-employment form for process 3.
 22. The ElevenLabs agent can call “spawn” as a tool, and can return each process in a structured form.
 23. Each browser action returns ready-made Playwright code. Only the Cursor agent’s own word so far.
@@ -421,7 +418,7 @@ Name (working), themed vocabulary, process 3 (offboarding), simple starting prim
 33. **Reading Gmail on a daily run without a model:** through the MCP server called directly, or a tool the monster wrote.
 34. **Daily input:** how new emails are picked up and how already-handled ones are skipped, so nobody is entered twice.
 35. **Partial failure:** a run that stops halfway leaves earlier entries in place.
-36. **Process 2 data:** what exactly goes into ParaBank for a new employee.
+36. **Process 2 data:** what exactly goes into OrangeHRM for a leave request.
 37. **Scheduler:** what triggers the daily run.
 38. **Data model:** what is stored about processes, runs, tools and the invitation.
 39. **UI:** screens for the interview, the shelf, processes, runs, the invitation and confirmation; how the theme file is adapted.

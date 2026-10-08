@@ -1,15 +1,50 @@
 # imortal-vampires-spawning-frankenstains
 
-Turborepo monorepo: Next.js + React + Tailwind on the front, Postgres + Kysely for data. The web app talks only to the lab service (not built yet) and, until that exists, to an in-browser simulation of it.
+Turborepo monorepo: Next.js + React + Tailwind on the front, a Fastify lab service, and Postgres + Kysely for data. The web app talks only to the lab service. Until you point it at the service, it uses an in-browser simulation.
+
+## Starting kit list
+
+The team wrote no task tools, and the shelf starts empty. This is everything a monster is born with; none of it is specific to any site or task:
+
+- **Read the shelf** — list every tool: name, description, sites, input, output (`./kit shelf`)
+- **Search the shelf** by words (`./kit search <words>`)
+- **Create a tool** — write `tools/<name>/meta.json` and `tools/<name>/tool.mjs`
+- **Test a tool** on one input (`./kit test <tool> '<input json>'`)
+- **Run a draft chain** on one item (`./kit chain`)
+- **Generic browser actions** — open, click, type, read the page
+
+The kit is in `apps/lab/src/monster/kit.ts`, and the words a monster is handed with it are in `apps/lab/src/monster/briefs.ts`.
+
+## Stack
+
+Turborepo and pnpm; Next.js (App Router), React and Tailwind v4 in `apps/web`; Fastify and Playwright in `apps/lab`; Postgres in Docker with Kysely for queries, migrations and schema types in `packages/db`.
+
+## The real / simulated / missing table
+
+"Built, not yet wired in" means the code exists on its own, but the lab service still calls a stand-in for it (`apps/lab/src/seams/registry.ts`).
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Web app screens and routes | Real | Next.js frontend |
+| Database | Real | Postgres with Kysely schema and migrations |
+| Lab service core | Real | Fastify service: interviews, processes, invitation, runs, ticks, events |
+| Mock mode data | Simulated | By default the web app uses an in-browser simulation kept in `sessionStorage`, marked "Simulated data" |
+| Test emails | Simulated | Sent by `scripts/send-test-emails.mjs` to a throwaway mailbox |
+| Runner (runs a chain with no model) | Built, not yet wired in | `apps/lab/src/runner`, with tests and its own command. The service's stand-in answers "The runner is not built yet." |
+| Install check (shelf) | Built, not yet wired in | `apps/lab/src/shelf`, with tests. The service's stand-in answers "The install check is not built yet." |
+| Monster (learns and repairs) | Built, not yet wired in | `apps/lab/src/monster`: learn and repair sessions driven through the `cursor-agent` command, the starting kit, a standalone command, and an adapter for the service that is not registered. No automated tests. |
+| Scheduling | Built, not yet wired in | `apps/lab/src/scheduling`: the next-run-time function, with tests. The service's stand-in returns no next run time, so only "Run now" would start a tick. |
+| Orchestrator (reads the interview) | **Missing** | Stand-in that proposes nothing; a saved interview ends as "nothing found" |
+| ElevenLabs voice interview | Real, needs configuration | The web app has the voice client; it is off until an agent id is set, and typing still works |
 
 ## Layout
 
 - `apps/web` — Next.js app (App Router, Tailwind v4)
+- `apps/lab` — Fastify lab service on `http://localhost:4000`, plus the standalone runner
 - `packages/contract` — the types the web app and the lab service share (`@repo/contract`); do not change casually, see its README
 - `packages/db` — Kysely client, migrations and generated schema types (`@repo/db`)
-- `packages/typescript-config` — shared `tsconfig` base
 
-## Setup
+## How to run
 
 ```sh
 nvm use                 # Node 24, from .nvmrc
@@ -29,7 +64,25 @@ pnpm dev:all            # Postgres, migrations, then every app in dev mode
 
 `pnpm dev:all` runs `pnpm db:up`, `pnpm db:migrate` and `pnpm dev` in that order and stops at the first one that fails. It is safe to run while Postgres is already up. Because it ends in `turbo run dev`, any package that later gains a `dev` script (for example the lab service) is started by it with no change to the script. It needs Docker running and Node 24.
 
-The web app has no database access and no health route of its own. It shows the lab service's health (`GET /health` on the lab service) in the footer of every screen. `pnpm dev` alone is enough to run the web app; the database is only needed by the lab service.
+The web app has no database access and no health route of its own. It shows the lab service's health (`GET /health` on `http://localhost:4000`) in the footer of every screen. `pnpm dev` starts the web app and the lab service. The database is required by the lab service.
+
+### Scripts
+
+| Command                       | What it does                                             |
+| ----------------------------- | -------------------------------------------------------- |
+| `pnpm dev`                    | Run all apps in dev mode                                 |
+| `pnpm dev:all`                | Start Postgres, apply migrations, then run `pnpm dev`    |
+| `pnpm build`                  | Build everything                                         |
+| `pnpm lint`                   | ESLint                                                   |
+| `pnpm typecheck`              | TypeScript across the workspace                          |
+| `pnpm format`                 | Prettier                                                 |
+| `pnpm db:up` / `pnpm db:down` | Start / stop Postgres                                    |
+| `pnpm db:migrate:make <name>` | Create a migration in `packages/db/migrations`           |
+| `pnpm db:migrate`             | Apply pending migrations                                 |
+| `pnpm db:migrate:down`        | Roll back the last migration                             |
+| `pnpm db:codegen`             | Regenerate `packages/db/src/schema.ts` from the database |
+
+After changing the schema: `pnpm db:migrate && pnpm db:codegen`.
 
 ## Web app
 
@@ -58,24 +111,6 @@ Playing the story in the mock: invite and start → watch the Lab → "Review an
 
 `NEXT_PUBLIC_*` values are read when the app is built or the dev server starts, so restart after changing them.
 
-## Scripts
-
-| Command                       | What it does                                             |
-| ----------------------------- | -------------------------------------------------------- |
-| `pnpm dev`                    | Run all apps in dev mode                                 |
-| `pnpm dev:all`                | Start Postgres, apply migrations, then run `pnpm dev`    |
-| `pnpm build`                  | Build everything                                         |
-| `pnpm lint`                   | ESLint                                                   |
-| `pnpm typecheck`              | TypeScript across the workspace                          |
-| `pnpm format`                 | Prettier                                                 |
-| `pnpm db:up` / `pnpm db:down` | Start / stop Postgres                                    |
-| `pnpm db:migrate:make <name>` | Create a migration in `packages/db/migrations`           |
-| `pnpm db:migrate`             | Apply pending migrations                                 |
-| `pnpm db:migrate:down`        | Roll back the last migration                             |
-| `pnpm db:codegen`             | Regenerate `packages/db/src/schema.ts` from the database |
-
-After changing the schema: `pnpm db:migrate && pnpm db:codegen`.
-
 ## Environment
 
-A single `.env` at the repo root is shared by the web app (loaded in `apps/web/next.config.ts`) and the db tooling.
+A single `.env` at the repo root is shared by the web app, the lab service and the db tooling.
