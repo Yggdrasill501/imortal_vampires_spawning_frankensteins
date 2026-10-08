@@ -947,10 +947,10 @@ a.row.slab:hover .row-name {
 .bar.refusal button {
   color: var(--vellum);
 }
-body.on-tonight .bars {
-  position: absolute;
-  inset: 4.6rem 0 auto 0;
-  z-index: 6;
+/* On Tonight a bar pushes the castle down, so it never covers the heading. */
+body.on-tonight .bars:has(.bar) {
+  padding-top: 4.6rem;
+  background: var(--night);
 }
 
 /* ───────── The Lab ───────── */
