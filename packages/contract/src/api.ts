@@ -93,6 +93,11 @@ export interface SaveInterviewRequest {
  */
 export type SaveInterviewResponse = Interview;
 
+/** GET /interviews — newest first. */
+export interface ListInterviewsResponse {
+  interviews: Interview[];
+}
+
 /** GET /interviews/:id */
 export type GetInterviewResponse = Interview;
 

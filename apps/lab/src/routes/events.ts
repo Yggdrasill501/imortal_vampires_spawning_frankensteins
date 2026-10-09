@@ -1,10 +1,15 @@
+import type { OutgoingHttpHeaders } from "node:http";
 import type { FastifyInstance } from "fastify";
 import { PATHS } from "@repo/contract";
 
 export function eventRoutes(app: FastifyInstance) {
   app.get(PATHS.events, async (request, reply) => {
+    // Writing to the raw response skips the headers Fastify has collected,
+    // so the cross-origin ones are carried over by hand.
+    const collected = reply.getHeaders() as OutgoingHttpHeaders;
     reply.hijack();
     reply.raw.writeHead(200, {
+      ...collected,
       "content-type": "text/event-stream",
       "cache-control": "no-cache",
       connection: "keep-alive",

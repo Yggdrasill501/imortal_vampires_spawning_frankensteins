@@ -36,6 +36,7 @@ export function Wordmark() {
 }
 
 const LINKS = [
+  { href: "/interviews", label: "Interviews" },
   { href: "/lab", label: "Lab" },
   { href: "/reliquary", label: "Reliquary" },
   { href: "/invitation", label: "Invitation" },

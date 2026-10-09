@@ -10,7 +10,7 @@
     "monster": "tsx src/monster/cli.ts",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "test": "tsx --test src/shelf/validator.test.ts src/runner/runner.test.ts test/service.test.ts"
+    "test": "tsx --test src/shelf/validator.test.ts src/runner/runner.test.ts src/scheduling/next-run.test.ts src/orchestrator/orchestrator.test.ts test/service.test.ts"
   },
   "dependencies": {
     "@elevenlabs/client": "^1.27.0",

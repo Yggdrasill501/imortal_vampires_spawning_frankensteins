@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import {
   PATHS,
   SPEAKERS,
+  type ListInterviewsResponse,
   type SaveInterviewRequest,
   type StartInterviewResponse,
 } from "@repo/contract";
@@ -51,6 +52,21 @@ export function interviewRoutes(app: FastifyInstance) {
     const view = await app.lab.db.transaction().execute((trx) => interviewView(app.lab, trx, row.id));
     app.lab.wakeDispatcher();
     return reply.code(201).send(view);
+  });
+
+  app.get(PATHS.interviews, async (): Promise<ListInterviewsResponse> => {
+    const rows = await app.lab.db
+      .selectFrom("interview")
+      .select("id")
+      .orderBy("started_at", "desc")
+      .limit(100)
+      .execute();
+    const interviews = [];
+    for (const row of rows) {
+      const view = await app.lab.db.transaction().execute((trx) => interviewView(app.lab, trx, row.id));
+      if (view) interviews.push(view);
+    }
+    return { interviews };
   });
 
   app.get("/interviews/:id", async (request) => {

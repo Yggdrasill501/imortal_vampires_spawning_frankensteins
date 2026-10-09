@@ -92,6 +92,7 @@ export function createMockClient(): LabClient {
       call(() => ({ service: "ok" as const, database: "ok" as const })),
 
     saveInterview: (body) => call(() => engine.saveInterview(body), true),
+    listInterviews: () => call(() => engine.listInterviews()),
     getInterview: (id) => call(() => engine.getInterview(id)),
     startInterview: (id) => call(() => engine.startInterview(id), true),
 

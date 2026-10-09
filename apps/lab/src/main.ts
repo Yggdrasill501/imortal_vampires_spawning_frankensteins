@@ -4,13 +4,15 @@ import { ensureLabDirs, loadConfig, type Config } from "./config.ts";
 import { startDispatcher } from "./dispatcher.ts";
 import { EventBus } from "./events.ts";
 import { recover } from "./recovery.ts";
-import { createSeams } from "./seams/registry.ts";
+import { createSeams, productionSeams } from "./seams/registry.ts";
 import type { Seams } from "./seams/types.ts";
 import { buildServer } from "./server.ts";
 
 export async function createLab(options: {
   config?: Partial<Config>;
   seams?: Partial<Seams>;
+  /** Use the built parts where they exist. Off by default, so tests get the stand-ins. */
+  production?: boolean;
 } = {}): Promise<Lab> {
   const config = loadConfig(options.config);
   await ensureLabDirs(config);
@@ -19,7 +21,10 @@ export async function createLab(options: {
     config,
     db,
     events: new EventBus(),
-    seams: createSeams(options.seams),
+    seams: createSeams({
+      ...(options.production ? productionSeams(config) : {}),
+      ...options.seams,
+    }),
     dbReady: false,
     stop: new AbortController(),
     jobs: new Map(),
@@ -40,7 +45,7 @@ export async function startLab(options: {
   seams?: Partial<Seams>;
   recoverOnStart?: boolean;
 } = {}) {
-  const lab = await createLab(options);
+  const lab = await createLab({ production: true, ...options });
   const server = await buildServer(lab);
   const address = await server.listen({ host: lab.config.host, port: lab.config.port });
 

@@ -318,6 +318,12 @@ export class Engine {
     return this.db.processes.map((p) => this.summary(p));
   }
 
+  listInterviews(): Interview[] {
+    return [...this.db.interviews]
+      .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+      .map((row) => this.getInterview(row.id));
+  }
+
   getInterview(id: Id): Interview {
     const row = this.db.interviews.find((x) => x.id === id);
     if (!row)

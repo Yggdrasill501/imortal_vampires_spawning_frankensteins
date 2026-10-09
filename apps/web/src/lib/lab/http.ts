@@ -6,6 +6,7 @@ import {
   type Interview,
   type Invitation,
   type LabEvent,
+  type ListInterviewsResponse,
   type ListMonsterRunsResponse,
   type ListProcessesResponse,
   type ListRunsResponse,
@@ -85,6 +86,8 @@ export function createHttpClient(
     health: () => get<HealthResponse>(PATHS.health),
 
     saveInterview: (body) => post<Interview>(PATHS.interviews, body),
+    listInterviews: async () =>
+      (await get<ListInterviewsResponse>(PATHS.interviews)).interviews,
     getInterview: (id) => get<Interview>(PATHS.interview(id)),
     startInterview: async (id) =>
       (await post<StartInterviewResponse>(PATHS.interviewStart(id))).interview,

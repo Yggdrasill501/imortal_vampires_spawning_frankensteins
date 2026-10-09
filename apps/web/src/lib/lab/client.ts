@@ -61,6 +61,8 @@ export interface LabClient {
   health(): Promise<HealthResponse>;
 
   saveInterview(body: SaveInterviewRequest): Promise<Interview>;
+  /** Newest first. */
+  listInterviews(): Promise<Interview[]>;
   getInterview(id: Id): Promise<Interview>;
   startInterview(id: Id): Promise<Interview>;
 

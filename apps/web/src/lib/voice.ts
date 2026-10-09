@@ -49,7 +49,8 @@ const elevenLabs: VoiceConnector = {
       agentId: AGENT_ID,
       connectionType: "webrtc",
       onMessage: (message) => {
-        const text = message.message?.trim();
+        // The agent's lines can open with a delivery cue such as "[curious]"; it is not speech.
+        const text = message.message?.replace(/^\s*(\[[a-z ]+\]\s*)+/i, "").trim();
         if (text)
           handlers.onTurn({
             speaker: message.source === "user" ? "user" : "agent",
