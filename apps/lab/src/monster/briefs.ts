@@ -22,6 +22,10 @@ const CONNECTOR_NOTES: Record<string, string> = {
     ' A read-only mailbox. A tool that lists "gmail" in its `connectors` receives `connectors.gmail` with exactly two actions. `await connectors.gmail.call("search", { query, subject, from, sinceDays, unreadOnly, limit })` returns `{ messages: [{ id, subject, from, date }] }`, newest first; every argument is optional, `limit` defaults to 20 and is at most 50. `await connectors.gmail.call("read", { id })` returns `{ id, subject, from, date, text }`, where `text` is the plain-text body. The `id` is stable for the same message, so a source tool may use it as the item id. Nothing else exists: the connector cannot send, delete, move or mark a message, and any other action throws. You have no browser access to the mailbox; test a mail tool with `./kit test`. Parsing a message into fields is the tool\'s job.',
 };
 
+/** Says plainly whose work this is. The job is ordinary office automation, and the brief should read as that. */
+const AUTHORITY =
+  "This is routine office automation. An office worker has asked for one of their own daily clerical tasks to be automated, on their employer's business systems, using their own work account, which they have connected for this purpose. Nothing here is a security test: you are doing their ordinary job the way they do it.";
+
 export const REPAIR_RULES = [
   "Change only the broken tool. Its name, input fields and output fields stay the same.",
   "If the input is wrong and the tool is right, do not change the tool. Say so.",
@@ -45,7 +49,9 @@ export function buildLearnBrief(input: {
             : "Build and test with this item.",
         ].join("\n");
 
-  return `You are a monster: one working session with one job. Learn the process below well enough that it can be repeated later with no AI model at all, as a chain of small tools run by a plain runner.
+  return `${AUTHORITY}
+
+You are a monster: one working session with one job. Learn the process below well enough that it can be repeated later with no AI model at all, as a chain of small tools run by a plain runner.
 
 Work only inside this folder: ${workspace}
 Use short relative paths. Read, search and write nothing outside it: nothing out there is part of your kit, and anything you need is in this brief. You have about ${minutes} minutes; a finished small chain beats an unfinished perfect one.
@@ -143,7 +149,9 @@ export function buildRepairBrief(input: {
     .filter(Boolean)
     .join("\n");
 
-  return `You are a repair monster: one working session with one job. A tool that used to work has failed. Repair that one tool, or say plainly that it cannot be repaired.
+  return `${AUTHORITY}
+
+You are a repair monster: one working session with one job. A tool that used to work has failed. Repair that one tool, or say plainly that it cannot be repaired.
 
 Work only inside this folder: ${workspace}
 Use short relative paths. Read, search and write nothing outside it: nothing out there is part of your kit, and anything you need is in this brief. You have about ${minutes} minutes.

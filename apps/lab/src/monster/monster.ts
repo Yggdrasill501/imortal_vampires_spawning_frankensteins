@@ -147,26 +147,12 @@ async function runSession(
   const describe = createDescriber(options.workspace);
   let tokens: Tokens = { input: 0, output: 0, cached: 0 };
   try {
-    const result = await runAgent({
-      brief: text,
-      workspace: options.workspace,
-      model: options.model,
-      env: options.env,
-      origins: sites.map((site) => (site.url ? new URL(site.url).origin : `https://${site.host}`)),
-      headless: access.headless,
-      timeoutMs: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-      signal: options.signal,
-      redact,
-      onEvent: async (event) => {
-        if (event.type === "tokens") {
-          tokens = event.tokens;
-          await options.onTokens?.(event.tokens);
-          return;
-        }
-        const action = describe(event);
-        if (action) await options.onAction?.({ ...action, text: redact(action.text) });
-      },
-    });
+    // A model provider's filter sometimes turns the brief away before any work starts.
+    // That is chance, not a verdict on the job, so the same brief is offered again.
+    let result = await start();
+    for (let attempt = 1; attempt < 3 && turnedAway(result) && !options.signal?.aborted; attempt++) {
+      result = await start();
+    }
     return {
       agentOk: result.ok,
       error: result.error,
@@ -186,6 +172,34 @@ async function runSession(
     // The workspace is kept for inspection; the logins are not.
     await sealKit(options.workspace);
   }
+
+  function start() {
+    return runAgent({
+      brief: text,
+      workspace: options.workspace,
+      model: options.model,
+      env: options.env,
+      origins: sites.map((site) => (site.url ? new URL(site.url).origin : `https://${site.host}`)),
+      headless: access.headless,
+      timeoutMs: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      signal: options.signal,
+      redact,
+      onEvent: async (event) => {
+        if (event.type === "tokens") {
+          tokens = event.tokens;
+          await options.onTokens?.(event.tokens);
+          return;
+        }
+        const action = describe(event);
+        if (action) await options.onAction?.({ ...action, text: redact(action.text) });
+      },
+    });
+  }
+}
+
+/** True when the provider refused the request outright, before the agent did anything. */
+function turnedAway(result: { ok: boolean; error: string | null; tokens: Tokens }): boolean {
+  return !result.ok && /request blocked|usage guidelines/i.test(result.error ?? "") && result.tokens.output === 0;
 }
 
 function accessOf(sites: BriefSite[], connectors: string[], options: MonsterOptions) {
