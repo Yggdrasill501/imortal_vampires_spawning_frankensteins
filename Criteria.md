@@ -10,7 +10,7 @@ Three kinds of evidence are used. They are not equally strong, so each claim say
 | **Automated test** | 54 tests in the lab service. | `pnpm --filter @repo/lab test` |
 | **Live demo** | The same flow through the web app and the lab service. | The video; `pnpm dev:all` |
 
-What is **not** proven yet is listed at the end. Read that section before trusting the rest.
+What ran through the lab service itself, and what is still **not** proven, are listed at the end.
 
 ## The four hard rules
 
@@ -210,13 +210,27 @@ The whole change between the two versions is one line: the button name `'Confirm
 | Technical execution | 10% | Sandboxed worker, three gates before a tool is trusted, 54 tests, versioned shelf. |
 | Validation and honest limitations | 10% | This file. |
 
+## Proven through the lab service, on 9 October
+
+After the recorded runs above, the whole flow ran through the web app and the lab service, with the sandbox on.
+
+| What | Result |
+| --- | --- |
+| Learn "New hire" from an empty shelf | Six tools written, the lab's check passed on a second email, sealed at 04:42. |
+| Learn "Leave requests" in a fresh session | Reused the sign-in and read-email tools that "New hire" made, wrote three new ones, sealed at 04:59. |
+| Run a sealed process on new work | "New hire" ran on two later emails (Lucy Westenra, Arthur Holmwood): passed, 0 model calls each. |
+| A sealed run fails and repairs itself | "Leave requests" failed on a button the tool could not find. A repair monster wrote version 2 in about three and a half minutes, the lab reran the failed email with 0 model calls, it passed, and the process was sealed again. |
+
+The break in the last row was planted by us, the same way as in the recorded run: one button name changed by hand in the installed tool. The repair is the monster's own work.
+
+That rehearsal also found a bug of ours, now fixed: the service mistook every repair brief for an error and ended the repair before the monster started (`apps/lab/src/monster/seam.ts`). The first repair on the tool's page, marked "not fixed", is that bug and not a monster's failure.
+
 ## Not proven yet
 
-- **The whole flow through the lab service with a real monster.** The recorded runs used the command-line entry point. Through the service, a real monster has been seen writing six tools; a complete learn → lab check → seal → scheduled run has passed only with a scripted monster in a test.
-- **The recorded runs predate the sandbox.** The sandbox is proven by its own test and one tool run by hand, not by a full monster session.
-- **Reuse and repair through the service** are proven by the recorded runs only.
-- **The mailbox is simulated.** It is a local mail server in Docker holding six test emails, read through the same read-only connector that would read a real mailbox.
-- **A real site change** has never triggered a repair; only the planted one has.
+- **"Leavers" has not been learned.** Its session was stopped after about 20 minutes, which is the time limit, before its chain passed.
+- **The mailbox is simulated.** It is a local mail server in Docker holding test emails, read through the same read-only connector that would read a real mailbox.
+- **A real site change** has never triggered a repair; only planted ones have.
+- **A run started by the schedule.** Every run so far was started with "Run now". The schedule is covered by tests only.
 
 ## Check it yourself
 
