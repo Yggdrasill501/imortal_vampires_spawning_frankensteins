@@ -111,7 +111,9 @@ async function main() {
       process.exitCode = 1;
       return;
     }
-    const second = listed.items[1];
+    // A chain whose source step lists only the first example is still checked on the second.
+    const second =
+      listed.items[1] ?? (brief.examples[1] ? asItem(brief.examples[1], 1) : undefined);
     if (!second) {
       say("Result: NOT VERIFIED. There was no second example to check the work on.");
       process.exitCode = 1;
