@@ -1,5 +1,7 @@
 # imortal vampires spawning frankenstains
 
+![The landing page: a castle under a red eclipse, with the line "Tell it your night's work. It will keep it."](docs/screenshots/01-landing.jpg)
+
 **You describe your daily work out loud. An AI agent learns each task once, writes its own tools to do it, and from then on the task runs every night with no AI in it.**
 
 Hackathon entry for the Frankenstein topic (From Dusk Till Dawn #01, Prague): an agent that builds its own capabilities, tests them, installs them and uses them again later.
@@ -55,6 +57,19 @@ All of this ran through the web app and the lab service against a live HR system
 | "Leavers", the third process | **Not learned.** Its agent was stopped at the 20-minute limit before its chain passed. |
 
 The button in the repair was renamed by us, by hand, to stand in for a site that changed. That is the only hand edit to generated code, and it is declared wherever the repair is shown. What is still unproven is listed at the end of [Criteria.md](Criteria.md).
+
+## Screenshots
+
+Taken from the running app on the night, with real data. The HR system's address is replaced by `hr.example` in these pictures.
+
+| | |
+| --- | --- |
+| **The interview.** The eye is the voice button; the right page takes typing. ![The interview page: an open spell book with an eye on the left page](docs/screenshots/03-interview.jpg) | **What it heard.** The processes proposed from one interview, before anything is invited. ![The review page listing the proposed processes](docs/screenshots/09-review.jpg) |
+| **The invitation.** The only places anything may reach. ![The invitation page with the mailbox and the HR system](docs/screenshots/10-invitation.jpg) | **The Forge.** Agents at work, and the sealed processes below. ![The Forge page with a hearth and an anvil behind the process panels](docs/screenshots/04-forge.jpg) |
+| **The Library.** Every tool the agents wrote, one book each. ![The Library page: a shelf of nine book spines and a candle](docs/screenshots/05-library.jpg) | **One tool.** Its versions and its repair. ![The page of one tool with its versions](docs/screenshots/08-tool.jpg) |
+| **A sealed process.** Two failed runs, then the run after the repair. ![The Leave requests process page, sealed and repaired](docs/screenshots/06-process.jpg) | **The run after the repair.** Each step, with no model calls. ![The run page of the rerun after the repair](docs/screenshots/07-repaired-run.jpg) |
+
+![The economy section of the landing page: a consultancy takes months, teaching takes minutes, and every night after costs 0 tokens](docs/screenshots/02-economy.jpg)
 
 ## The pitch
 
