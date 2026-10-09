@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useSyncExternalStore } from "react";
-import type { Repair, Tool } from "@repo/contract";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import type { Repair, Tool, ToolSummary } from "@repo/contract";
 import { processHref, relicHref, runHref } from "@/components/parts";
 import { Chip } from "@/components/status";
 import {
@@ -12,7 +12,6 @@ import {
   Disclosure,
   EmptyShelf,
   Facts,
-  Icon,
   Read,
   Rule,
   SectionHead,
@@ -62,38 +61,92 @@ export function Reliquary() {
                 </div>
               </div>
             ) : (
-              <div className="grid-3">
-                {list.map((tool) => (
-                  <Card key={tool.name} href={relicHref(tool.name)}>
-                    <Icon name="relic" />
-                    <strong className="mono" style={{ fontSize: "0.98rem" }}>
-                      {tool.name}
-                    </strong>
-                    <p>{tool.description}</p>
-                    <Sites sites={tool.sites} />
-                    <span className="inline">
-                      <Tag>{tool.kind}</Tag>
-                      <Tag>v{tool.currentVersion}</Tag>
-                      {tool.repairCount ? (
-                        <Tag tone="reused">Repaired</Tag>
-                      ) : null}
-                    </span>
-                    <span
-                      className="foot-line"
-                      title={tool.usedBy.map((u) => u.processName).join(", ")}
-                    >
-                      Made by the Familiar of {tool.createdBy.processName} ·
-                      Used by{" "}
-                      {plural(tool.usedBy.length, "process", "processes")}
-                    </span>
-                  </Card>
-                ))}
-              </div>
+              <Bookcase tools={list} />
             )
           }
         </Read>
       </div>
     </section>
+  );
+}
+
+/** A steady number from a name, so a book keeps its colour and size between visits. */
+function seed(name: string): number {
+  let n = 7;
+  for (const ch of name) n = (n * 31 + ch.charCodeAt(0)) >>> 0;
+  return n;
+}
+
+const LEATHERS = ["blood", "oxblood", "moss", "ink", "umber", "ash"];
+const NUMERALS = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
+
+/** Every Relic is a closed book on the shelf. The one under the hand is read out on the plate below. */
+function Bookcase({ tools }: { tools: ToolSummary[] }) {
+  const [picked, setPicked] = useState<string | null>(null);
+  const open = tools.find((t) => t.name === picked) ?? tools[0];
+  return (
+    <div className="stack">
+      <ul className="bookcase" aria-label="Relics on the shelf">
+        {tools.map((tool) => {
+          const n = seed(tool.name);
+          const tall = 20 + ((n >> 3) % 7) * 0.6;
+          // The label runs between the ornament and the numeral. A monospace letter is about 0.62 of its size
+          // long, so this is the largest size at which the whole name fits.
+          const room = tall - 8.4 - 1.2;
+          const size = Math.min(0.84, room / (tool.name.length * 0.62));
+          return (
+            <li key={tool.name}>
+              <Link
+                href={relicHref(tool.name)}
+                className={`spine ${LEATHERS[n % LEATHERS.length]} ${open.name === tool.name ? "out" : ""}`}
+                style={
+                  {
+                    "--tall": `${tall}rem`,
+                    "--title": `${size.toFixed(3)}rem`,
+                    "--thick": `${4.4 + ((n >> 6) % 4) * 0.5}rem`,
+                  } as React.CSSProperties
+                }
+                onMouseEnter={() => setPicked(tool.name)}
+                onFocus={() => setPicked(tool.name)}
+                aria-label={`${tool.name}: ${tool.description}`}
+              >
+                <span className="spine-mark" aria-hidden="true">
+                  {tool.kind === "writes" ? "✦" : "◇"}
+                </span>
+                <span className="spine-title mono">{tool.name}</span>
+                <span className="spine-foot" aria-hidden="true">
+                  {NUMERALS[tool.currentVersion] ?? tool.currentVersion}
+                </span>
+                {tool.repairCount ? <span className="spine-stitch" /> : null}
+              </Link>
+            </li>
+          );
+        })}
+        <li className="candle" aria-hidden="true">
+          <i />
+        </li>
+      </ul>
+
+      <Card href={relicHref(open.name)} className="plate">
+        <strong className="mono" style={{ fontSize: "1.05rem" }}>
+          {open.name}
+        </strong>
+        <p>{open.description}</p>
+        <Sites sites={open.sites} />
+        <span className="inline">
+          <Tag>{open.kind}</Tag>
+          <Tag>v{open.currentVersion}</Tag>
+          {open.repairCount ? <Tag tone="reused">Repaired</Tag> : null}
+        </span>
+        <span
+          className="foot-line"
+          title={open.usedBy.map((u) => u.processName).join(", ")}
+        >
+          Made by the Familiar of {open.createdBy.processName} · Used by{" "}
+          {plural(open.usedBy.length, "process", "processes")} · Open the book
+        </span>
+      </Card>
+    </div>
   );
 }
 

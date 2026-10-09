@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import type { MonsterRun, ProcessSummary } from "@repo/contract";
 import { ForgeScene } from "@/components/forge-scene";
-import { FamiliarPanel, foldSessions, RelicTile } from "@/components/parts";
-import { Button, EmptyShelf, Read, SectionHead, Term } from "@/components/ui";
+import { FamiliarPanel, foldSessions } from "@/components/parts";
+import { Button, Read, SectionHead, Term } from "@/components/ui";
 import { count, lastNoon, plural } from "@/lib/format";
-import { useLab, useLabEvents, useNow } from "@/lib/lab/provider";
+import { useLab, useNow } from "@/lib/lab/provider";
 import { Kept } from "./tonight";
 
 const SHOWN = [
@@ -64,12 +63,6 @@ export function Lab() {
     { refreshOn: (e) => e.kind === "process.status" },
   );
 
-  const [reused, setReused] = useState<Record<string, number>>({});
-  useLabEvents((event) => {
-    if (event.kind === "tool.reused")
-      setReused((held) => ({ ...held, [event.tool]: Date.now() }));
-  });
-
   const noon = lastNoon(now || 1);
   const teaching = (sessions.data ?? [])
     .filter((s) => s.startedAt && new Date(s.startedAt).getTime() >= noon)
@@ -78,7 +71,10 @@ export function Lab() {
     (sum, r) => sum + r.modelCalls,
     0,
   );
-  const shelf = [...(tools.data ?? [])].reverse();
+  const shelf = tools.data ?? [];
+  const newTonight = shelf.filter(
+    (tool) => new Date(tool.createdBy.at).getTime() >= noon,
+  ).length;
 
   return (
     <section className="band forge">
@@ -109,10 +105,15 @@ export function Lab() {
               </span>
             )}
           </p>
+          <p>
+            The <Term word="Library" /> holds {plural(shelf.length, "Relic")}
+            {newTonight ? `, ${count(newTonight)} made tonight` : ""}.{" "}
+            <Link href="/reliquary">Open the Library</Link>
+          </p>
         </SectionHead>
 
         <div className="lab">
-          <div className="stack-sm" style={{ gap: "1.2rem" }}>
+          <div className="forging">
             <Read read={processes}>
               {(list) => {
                 const panels = order(list, sessions.data ?? []);
@@ -149,46 +150,6 @@ export function Lab() {
               }}
             </Read>
           </div>
-
-          <aside className="shelf-pane stack-sm" aria-label="The Library">
-            <div className="panel-head">
-              <h2>
-                The <Term word="Library" />
-              </h2>
-              <span className="ash figures">
-                {plural(shelf.length, "Relic")}
-              </span>
-            </div>
-            <Read read={tools}>
-              {() => (
-                <>
-                  {shelf.length === 0 ? <p>The Library is empty.</p> : null}
-                  <div className="tiles">
-                    {shelf.map((tool) => {
-                      const made = new Date(tool.createdBy.at).getTime();
-                      return (
-                        <RelicTile
-                          key={tool.name}
-                          tool={tool}
-                          isNew={made >= noon}
-                          arrived={now > 0 && now - made < 2500}
-                          flash={
-                            now > 0 && now - (reused[tool.name] ?? 0) < 1500
-                          }
-                        />
-                      );
-                    })}
-                  </div>
-                  {shelf.length < 6 ? (
-                    <EmptyShelf niches={6 - shelf.length} />
-                  ) : null}
-                  <p>
-                    <Link href="/reliquary">Open the Library</Link>
-                  </p>
-                </>
-              )}
-            </Read>
-          </aside>
         </div>
 
         <div className="kept">

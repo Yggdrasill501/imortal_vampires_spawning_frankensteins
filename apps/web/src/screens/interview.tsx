@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { TranscriptTurn } from "@repo/contract";
 import { Bats } from "@/components/bats";
+import { RuneRing, Runes } from "@/components/runes";
 import { Button, Diamond, SectionHead, useCommand } from "@/components/ui";
 import { useLab, useLabContext } from "@/lib/lab/provider";
 import { createTabStore } from "@/lib/store";
@@ -157,6 +158,10 @@ export function InterviewScreen() {
           ? "Call again"
           : "Begin";
 
+  // The eye is shut when there is no voice to give: not set up, refused, or the interview is being read.
+  const shut =
+    !voice.configured || state === "refused" || (locked && state === "ready");
+
   return (
     <section className="band hazed with-bats">
       <Bats />
@@ -166,148 +171,172 @@ export function InterviewScreen() {
           long each task takes and how often.
         </SectionHead>
 
-        <div className="book">
-          <div className="page left">
-            <p className="label page-title">Speak</p>
-            <div className="eclipse-stage">
-              <button
-                type="button"
-                className={`eclipse ${state === "connecting" ? "turning" : ""} ${state === "conversation" ? "breathing" : ""} ${state === "lost" || state === "refused" ? "dark" : ""}`}
-                disabled={
-                  !voice.configured ||
-                  locked ||
-                  state === "connecting" ||
-                  state === "conversation" ||
-                  state === "refused"
-                }
-                onClick={() => void begin()}
-                aria-label={
-                  state === "lost" ? "Call again" : "Begin the voice interview"
-                }
-              >
-                {discLabel}
-              </button>
-              <p className="ash" role="status" style={{ textAlign: "center" }}>
-                {!voice.configured
-                  ? "Voice is not configured on this machine. Write it below instead."
-                  : state === "ready"
-                    ? "Your browser will ask for the microphone."
-                    : state === "connecting"
-                      ? "Calling the house…"
-                      : state === "conversation"
-                        ? mode === "speaking"
-                          ? "Speaking"
-                          : "Listening"
-                        : state === "refused"
-                          ? "The microphone is closed to us. Write it instead."
-                          : ""}
-              </p>
-              {state === "connecting" ? (
-                <Button variant="ghost" small onClick={cancel}>
-                  Cancel
-                </Button>
-              ) : null}
-            </div>
-
-            {state === "lost" ? (
-              <div
-                className="bar"
-                role="alert"
-                style={{ border: "1px solid var(--ember)" }}
-              >
-                <div className="wrap">
-                  The voice is gone. Your words are kept. Go on in writing.
-                </div>
-              </div>
-            ) : null}
-          </div>
-          <div className="page right">
-            <p className="label page-title">Or write</p>
-            <section className="stack-sm page-words" aria-label="Transcript">
-              <h2 className="sr-only">Transcript</h2>
-              {draft.turns.length ? (
-                <TranscriptView
-                  interview={{
-                    transcript: draft.turns,
-                    language: read?.language ?? earlier.data?.language ?? "und",
-                  }}
-                />
-              ) : (
-                <p className="ash">Nothing has been said yet.</p>
-              )}
-            </section>
-
-            {isReading ? (
-              <p className="inline" role="status">
-                <Diamond pulse className="ember" />
-                The transcript is being read. This takes a minute or two.
-              </p>
-            ) : null}
-            {couldNotRead ? (
-              <div className="stack-sm" role="alert">
-                <p>The lab could not read it. Nothing is lost.</p>
-                <p className="ash">{read?.readError}</p>
-              </div>
-            ) : null}
-
-            <form
-              className="stack-sm"
-              onSubmit={(e) => {
-                e.preventDefault();
-                sendLine();
-              }}
-            >
-              <div className="field">
-                <label htmlFor="interview-line">Your next line</label>
-                <textarea
-                  id="interview-line"
-                  ref={box}
-                  value={line}
-                  disabled={locked}
-                  placeholder="Each night I open the mailbox and look for…"
-                  onChange={(e) => setLine(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                      e.preventDefault();
-                      sendLine();
-                    }
-                  }}
-                />
-              </div>
-              <div className="cmd">
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  disabled={locked || !line.trim()}
-                >
-                  Add to the transcript
-                </Button>
-                <Button
-                  onClick={() => void end.send()}
-                  disabled={locked || !userSpoke}
-                >
-                  {end.pending || isReading
-                    ? "Reading…"
-                    : couldNotRead
-                      ? "Read it again"
-                      : "End the interview"}
-                </Button>
-                {draft.turns.length && !locked ? (
+        <div className="book-stage">
+          <Runes />
+          <div className="book">
+            <span className="ribbon" aria-hidden="true" />
+            <div className="page left">
+              <p className="label page-title">Speak</p>
+              <div className="eclipse-stage">
+                <div className="eye-socket">
+                  <RuneRing />
                   <button
                     type="button"
-                    className="btn-text"
-                    onClick={() => setDraft(EMPTY)}
+                    className={`eclipse eye ${state === "connecting" ? "turning" : ""} ${state === "conversation" ? "awake" : ""} ${state === "conversation" && mode === "speaking" ? "wide" : ""} ${shut ? "shut" : ""}`}
+                    disabled={
+                      !voice.configured ||
+                      locked ||
+                      state === "connecting" ||
+                      state === "conversation" ||
+                      state === "refused"
+                    }
+                    onClick={() => void begin()}
+                    aria-label={
+                      state === "lost"
+                        ? "Call again"
+                        : "Begin the voice interview"
+                    }
                   >
-                    Start over
+                    <span className="eye-iris" />
+                    <span className="eye-pupil" />
+                    <span className="eye-glint" />
+                    <span className="eye-lid" />
                   </button>
-                ) : null}
-                {end.fault ? (
-                  <span className="fault" role="alert">
-                    {end.fault}
-                  </span>
+                </div>
+                <p className="label eye-label">{discLabel}</p>
+                <p
+                  className="ash"
+                  role="status"
+                  style={{ textAlign: "center" }}
+                >
+                  {!voice.configured
+                    ? "Voice is not configured on this machine. Write it below instead."
+                    : state === "ready"
+                      ? "Your browser will ask for the microphone."
+                      : state === "connecting"
+                        ? "Calling the house…"
+                        : state === "conversation"
+                          ? mode === "speaking"
+                            ? "Speaking"
+                            : "Listening"
+                          : state === "refused"
+                            ? "The microphone is closed to us. Write it instead."
+                            : ""}
+                </p>
+                {state === "connecting" ? (
+                  <Button variant="ghost" small onClick={cancel}>
+                    Cancel
+                  </Button>
                 ) : null}
               </div>
-            </form>
+
+              {state === "lost" ? (
+                <div
+                  className="bar"
+                  role="alert"
+                  style={{ border: "1px solid var(--ember)" }}
+                >
+                  <div className="wrap">
+                    The voice is gone. Your words are kept. Go on in writing.
+                  </div>
+                </div>
+              ) : null}
+              <span className="folio" aria-hidden="true">
+                i
+              </span>
+            </div>
+            <div className="page right">
+              <p className="label page-title">Or write</p>
+              <section className="stack-sm page-words" aria-label="Transcript">
+                <h2 className="sr-only">Transcript</h2>
+                {draft.turns.length ? (
+                  <TranscriptView
+                    interview={{
+                      transcript: draft.turns,
+                      language:
+                        read?.language ?? earlier.data?.language ?? "und",
+                    }}
+                  />
+                ) : (
+                  <p className="ash">Nothing has been said yet.</p>
+                )}
+              </section>
+
+              {isReading ? (
+                <p className="inline" role="status">
+                  <Diamond pulse className="ember" />
+                  The transcript is being read. This takes a minute or two.
+                </p>
+              ) : null}
+              {couldNotRead ? (
+                <div className="stack-sm" role="alert">
+                  <p>The lab could not read it. Nothing is lost.</p>
+                  <p className="ash">{read?.readError}</p>
+                </div>
+              ) : null}
+
+              <form
+                className="stack-sm"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendLine();
+                }}
+              >
+                <div className="field">
+                  <label htmlFor="interview-line">Your next line</label>
+                  <textarea
+                    id="interview-line"
+                    ref={box}
+                    value={line}
+                    disabled={locked}
+                    placeholder="Each night I open the mailbox and look for…"
+                    onChange={(e) => setLine(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        sendLine();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="cmd">
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    disabled={locked || !line.trim()}
+                  >
+                    Add to the transcript
+                  </Button>
+                  <Button
+                    onClick={() => void end.send()}
+                    disabled={locked || !userSpoke}
+                  >
+                    {end.pending || isReading
+                      ? "Reading…"
+                      : couldNotRead
+                        ? "Read it again"
+                        : "End the interview"}
+                  </Button>
+                  {draft.turns.length && !locked ? (
+                    <button
+                      type="button"
+                      className="btn-text"
+                      onClick={() => setDraft(EMPTY)}
+                    >
+                      Start over
+                    </button>
+                  ) : null}
+                  {end.fault ? (
+                    <span className="fault" role="alert">
+                      {end.fault}
+                    </span>
+                  ) : null}
+                </div>
+              </form>
+              <span className="folio" aria-hidden="true">
+                ii
+              </span>
+            </div>
           </div>
         </div>
       </div>
