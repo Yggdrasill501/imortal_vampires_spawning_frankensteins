@@ -17,7 +17,7 @@ import {
   setTokens,
   setVerificationOutcome,
 } from "../store/monster-log.ts";
-import { installDraft, reuseTool, saveChain } from "../store/shelf-index.ts";
+import { installDraft, reuseTool, saveChain, withdrawCreatedTools } from "../store/shelf-index.ts";
 import { iso } from "../time.ts";
 import { saveChainFile } from "../wiring/chain.ts";
 
@@ -86,7 +86,7 @@ export async function learnPipeline(lab: Lab, monsterRunId: string, signal: Abor
     lab,
     monsterRunId,
     processId,
-    `Running the saved chain on a second example, ${second.label}, with no model.`,
+    `Running the saved chain on a second example, ${second.label}, in the sandbox, with no model.`,
   );
   const run = await lab.db.transaction().execute(async (trx) => {
     const created = await runLife.createRun(trx, {
@@ -284,6 +284,16 @@ export async function currentSteps(lab: Lab, processId: string) {
 }
 
 async function failLearn(lab: Lab, monsterRunId: string, processId: string, reason: string) {
+  const withdrawn = await withdrawCreatedTools(lab, monsterRunId);
+  if (withdrawn.length > 0) {
+    const settle = await verificationLine(
+      lab,
+      monsterRunId,
+      processId,
+      `No passing test run, so the tools this agent made were taken off the shelf again: ${withdrawn.join(", ")}.`,
+    );
+    await settle("failed");
+  }
   await lab.db.transaction().execute(async (trx) => {
     await monsterLife.failMonsterRun(trx, monsterRunId, reason);
     await processLife.markFailedToLearn(trx, processId, reason);

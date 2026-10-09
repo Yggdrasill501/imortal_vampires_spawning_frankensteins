@@ -48,7 +48,25 @@ export async function runPipeline(lab: Lab, runId: string, signal: AbortSignal):
       startedAt,
     });
     if (process.status === "sealed" && (run.kind === "scheduled" || run.kind === "run_now")) {
-      if (outcome.status === "failed") {
+      const repairs = await trx
+        .selectFrom("monster_run")
+        .select((eb) => eb.fn.countAll<string>().as("n"))
+        .where("process_id", "=", process.id)
+        .where("kind", "=", "repair")
+        .executeTakeFirstOrThrow();
+      if (outcome.status === "failed" && Number(repairs.n) >= lab.config.maxAttempts) {
+        // The limit on repairs is reached: no further agent is started for this process.
+        await processLife.markNeedsHuman(
+          trx,
+          process.id,
+          {
+            reason: `A run failed, and this process has already used its ${lab.config.maxAttempts} repairs.`,
+            causeRunId: runId,
+          },
+          "sealed",
+        );
+        lab.events.emit(processLife.processStatusEvent(process.id, "needs_human"));
+      } else if (outcome.status === "failed") {
         const monster = await queueMonsterRun(trx, {
           processId: process.id,
           kind: "repair",

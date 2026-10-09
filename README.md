@@ -1,6 +1,30 @@
-# imortal-vampires-spawning-frankenstains
+# imortal vampires spawning frankenstains
 
-Turborepo monorepo: Next.js + React + Tailwind on the front, a Fastify lab service, and Postgres + Kysely for data. The web app talks only to the lab service. Until you point it at the service, it uses an in-browser simulation.
+Hackathon entry for the Frankenstein topic: an agent that builds its own capabilities, tests them, installs them and uses them again later.
+
+## Against the assignment
+
+What it is: a person describes their daily work in a voice interview. For each task, one agent (a "monster") starts with no tool for it, looks at a shared shelf, reuses what fits and writes what is missing, in a browser you can watch. The lab tests the result itself. Once you seal it, the task reruns on a schedule as a chain of those tools with no AI model, and a tool that breaks is repaired by a new monster. Its capabilities grow with every task; its access does not: it only enters where it is invited.
+
+### The four hard rules
+
+| Rule | Status | How |
+| --- | --- | --- |
+| Generated code runs in a sandbox, never on a host holding your credentials | **Partly met** | Every tool, in every test, check, run and rerun, executes in a worker process started inside the macOS system sandbox (`apps/lab/src/runner/sandbox.ts`, tested in `sandbox.test.ts`). The profile denies it the project's `.env`, the lab's held logins, the usual credential folders in the home directory, and every write outside scratch space. A tool is handed only its input, the login for the sites it declared, and its connectors. Not met: it is the same machine, not a container; the profile is a deny-list; it exists on macOS only, and elsewhere the worker is an ordinary process. The monster's own agent session is not sandboxed at all. |
+| No install without passing tests; the test run is visible in the log | **Met, with one detail** | A tool is placed on the shelf after a static check so that the lab can run it. The lab then runs the whole chain on a second example with no model. If that run fails, every tool that monster created is removed again. The check lines and the run are shown on the process page. |
+| The gap comes from a task | **Met** | Tasks come from the interview. No code names a tool to build or a site to build it for. The shelf starts empty; see it before the first run on the Reliquary page. |
+| Self-iterations and spend per run are capped in code | **Partly met** | Capped: 20 minutes per monster (`LAB_MONSTER_TIMEOUT_MS`), 3 learn attempts and 3 repairs per process (`LAB_MAX_ATTEMPTS`), 3 monsters at once, 120 seconds per run. Not capped: tokens. The agent reports them only when a session ends, so they are recorded, not limited. |
+
+### The definition of done
+
+| Asked for | Status | Where |
+| --- | --- | --- |
+| A task exposes a missing capability; the agent creates, tests and registers it, then completes the task | Met | Learning a process from an empty shelf |
+| A fresh session, on a different task, combines earlier capabilities without rebuilding | Met | Each monster is a new session. The second process reuses the sign-in tool the first one made |
+| A persistent registry with versions and rollback | Partly | Every tool keeps every version. A failed repair is rolled back automatically. There is no button to roll back by hand |
+| The agent builds its own discovery and management tooling | Not met | The agent writes each tool's description and interface, which is what the shelf search reads. The shelf and its search are ours |
+| An approval gate, operator control | Met | Nothing runs on a schedule until you seal it. You invite sites, set the schedule, resume and retire |
+| Eyes, hands or a voice | Met | A browser it drives; an ElevenLabs voice interview |
 
 ## Starting kit list
 
@@ -17,7 +41,7 @@ The kit is in `apps/lab/src/monster/kit.ts`, and the words a monster is handed w
 
 ## Stack
 
-Turborepo and pnpm; Next.js (App Router), React and Tailwind v4 in `apps/web`; Fastify and Playwright in `apps/lab`; Postgres in Docker with Kysely for queries, migrations and schema types in `packages/db`.
+Turborepo monorepo. The web app talks only to the lab service; with the service off it shows an in-browser simulation, marked "Simulated data". Turborepo and pnpm; Next.js (App Router), React and Tailwind v4 in `apps/web`; Fastify and Playwright in `apps/lab`; Postgres in Docker with Kysely for queries, migrations and schema types in `packages/db`.
 
 ## The real / simulated / missing table
 

@@ -59,6 +59,17 @@ export function processRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const process = await requireProcess(app, id);
     if (process.status !== "failed_to_learn") throw stateChanged("This process is not waiting to learn again.");
+    const attempts = await app.lab.db
+      .selectFrom("monster_run")
+      .select((eb) => eb.fn.countAll<string>().as("n"))
+      .where("process_id", "=", id)
+      .where("kind", "=", "learn")
+      .executeTakeFirstOrThrow();
+    if (Number(attempts.n) >= app.lab.config.maxAttempts) {
+      throw stateChanged(
+        `This process has been tried ${app.lab.config.maxAttempts} times, which is the limit. Describe it again in a new interview.`,
+      );
+    }
     const monster = await app.lab.db.transaction().execute((trx) =>
       processLife.queueLearn(trx, id, app.lab.config.model, "failed_to_learn"),
     );

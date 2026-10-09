@@ -16,6 +16,8 @@ export interface Config {
   readonly model: string;
   readonly maxMonsters: number;
   readonly maxRuns: number;
+  /** How many times one process may be learned, and how many repairs it may start, before a person must step in. */
+  readonly maxAttempts: number;
   readonly readTimeoutMs: number;
   readonly monsterTimeoutMs: number;
   readonly runTimeoutMs: number;
@@ -47,6 +49,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     model: stringEnv("LAB_MODEL", "auto", overrides.model),
     maxMonsters: intEnv("LAB_MAX_MONSTERS", 3, overrides.maxMonsters),
     maxRuns: intEnv("LAB_MAX_RUNS", 2, overrides.maxRuns),
+    maxAttempts: intEnv("LAB_MAX_ATTEMPTS", 3, overrides.maxAttempts),
     readTimeoutMs: intEnv("LAB_READ_TIMEOUT_MS", 300_000, overrides.readTimeoutMs),
     monsterTimeoutMs: intEnv("LAB_MONSTER_TIMEOUT_MS", 1_200_000, overrides.monsterTimeoutMs),
     runTimeoutMs: intEnv("LAB_RUN_TIMEOUT_MS", 120_000, overrides.runTimeoutMs),

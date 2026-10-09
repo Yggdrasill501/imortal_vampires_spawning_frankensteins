@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { REPO_ROOT } from "../config.ts";
 import { readMailSettings } from "../connectors/settings.ts";
 import type { MailSettings } from "../connectors/types.ts";
 import {
@@ -10,6 +11,7 @@ import {
   readCurrentShelfVersion,
   readShelfVersion,
 } from "../shelf/validator.ts";
+import { sandboxed } from "./sandbox.ts";
 import type { InvitationScope, ToolVersion } from "../shelf/types.ts";
 import type {
   Chain,
@@ -362,7 +364,12 @@ export class Runner {
 
   private runWorker<T>(request: WorkerRequest, timeoutMs: number, scope: RunScope): Promise<T> {
     return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, [workerPath], {
+      // Generated code runs in here, so the worker starts inside the system sandbox.
+      const launch = sandboxed(process.execPath, [workerPath], {
+        repoRoot: REPO_ROOT,
+        dataDir: path.resolve(REPO_ROOT, process.env.LAB_DATA_DIR || ".lab"),
+      });
+      const child = spawn(launch.command, launch.args, {
         stdio: ["pipe", "pipe", "pipe"],
         // Hand the browser a machine runtime, not the service's secrets.
         env: childEnv(),

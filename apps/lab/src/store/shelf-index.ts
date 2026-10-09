@@ -1,4 +1,4 @@
-import { cp } from "node:fs/promises";
+import { cp, rm } from "node:fs/promises";
 import path from "node:path";
 import type { Fact, ToolKind, ToolOrigin } from "@repo/contract";
 import { jsonb } from "@repo/db";
@@ -33,29 +33,51 @@ export async function installDraft(
       throw invalid(`The tool names a site this process may not use: ${site}.`);
     }
   }
-  const existing = await trx.selectFrom("tool").select("id").where("name", "=", input.name).executeTakeFirst();
-  if (existing) throw invalid(`The name ${input.name} is already on the shelf.`);
+  const existing = await trx.selectFrom("tool").selectAll().where("name", "=", input.name).executeTakeFirst();
+  if (existing?.current_version_id) throw invalid(`The name ${input.name} is already on the shelf.`);
+  // A name that was withdrawn after a failed test run may be used again; its old versions stay on record.
+  const last = existing
+    ? await trx
+        .selectFrom("tool_version")
+        .select((eb) => eb.fn.max("version").as("version"))
+        .where("tool_id", "=", existing.id)
+        .executeTakeFirst()
+    : undefined;
+  const number = Number(last?.version ?? 0) + 1;
 
-  const codePath = `${input.name}/v1`;
+  const codePath = `${input.name}/v${number}`;
   const dest = path.join(lab.config.shelfDir, codePath);
   await cp(input.draftFolder, dest, { recursive: true });
 
-  const tool = await trx
-    .insertInto("tool")
-    .values({
-      name: input.name,
-      description: input.description,
-      kind: input.kind,
-      created_by_monster_run_id: input.monsterRunId,
-      created_for_process_id: input.processId,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow();
+  const tool = existing
+    ? await trx
+        .updateTable("tool")
+        .set({
+          description: input.description,
+          kind: input.kind,
+          created_by_monster_run_id: input.monsterRunId,
+          created_for_process_id: input.processId,
+        })
+        .where("id", "=", existing.id)
+        .returningAll()
+        .executeTakeFirstOrThrow()
+    : await trx
+        .insertInto("tool")
+        .values({
+          name: input.name,
+          description: input.description,
+          kind: input.kind,
+          created_by_monster_run_id: input.monsterRunId,
+          created_for_process_id: input.processId,
+        })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+  if (existing) await trx.deleteFrom("tool_site").where("tool_id", "=", existing.id).execute();
   const version = await trx
     .insertInto("tool_version")
     .values({
       tool_id: tool.id,
-      version: 1,
+      version: number,
       code_path: codePath,
       origin_kind: "learn",
       monster_run_id: input.monsterRunId,
@@ -80,13 +102,37 @@ export async function installDraft(
   return { tool, version };
 }
 
+/**
+ * No tool stays installed without a passing test run. When the lab's own run
+ * of a learned chain fails, every tool that monster created is taken off the
+ * shelf again. The records of what it wrote and of the failed run are kept.
+ */
+export async function withdrawCreatedTools(lab: Lab, monsterRunId: string): Promise<string[]> {
+  const tools = await lab.db
+    .selectFrom("tool")
+    .select(["id", "name"])
+    .where("created_by_monster_run_id", "=", monsterRunId)
+    .where("current_version_id", "is not", null)
+    .execute();
+  if (tools.length === 0) return [];
+  const ids = tools.map((tool) => tool.id);
+  await lab.db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("process_step").where("tool_id", "in", ids).execute();
+    await trx.updateTable("tool").set({ current_version_id: null }).where("id", "in", ids).execute();
+  });
+  for (const tool of tools) {
+    await rm(path.join(lab.config.shelfDir, tool.name), { recursive: true, force: true });
+  }
+  return tools.map((tool) => tool.name);
+}
+
 export async function reuseTool(
   lab: Lab,
   trx: Trx,
   input: { processId: string; monsterRunId: string; name: string },
 ) {
   const tool = await trx.selectFrom("tool").selectAll().where("name", "=", input.name).executeTakeFirst();
-  if (!tool) throw invalid("Nothing by that name exists on the shelf.");
+  if (!tool || !tool.current_version_id) throw invalid("Nothing by that name exists on the shelf.");
   const sites = await trx.selectFrom("tool_site").select("site").where("tool_id", "=", tool.id).execute();
   const allowed = new Set(
     (await trx.selectFrom("process_site").select("site").where("process_id", "=", input.processId).execute()).map(

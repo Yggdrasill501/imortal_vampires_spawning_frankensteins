@@ -135,7 +135,7 @@ export async function repairPipeline(lab: Lab, monsterRunId: string, signal: Abo
     lab,
     monsterRunId,
     processId,
-    `Running the failed item, ${failedRun.item_label}, again with the candidate and no model.`,
+    `Running the failed item, ${failedRun.item_label}, again with the candidate, in the sandbox, with no model.`,
   );
   const candidate = await lab.db.transaction().execute(async (trx) =>
     trx

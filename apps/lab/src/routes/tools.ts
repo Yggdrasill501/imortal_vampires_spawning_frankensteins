@@ -5,7 +5,7 @@ import { toolSummary, toolView } from "../views.ts";
 
 export function toolRoutes(app: FastifyInstance) {
   app.get(PATHS.tools, async () => {
-    const rows = await app.lab.db.selectFrom("tool").select("name").orderBy("created_at").execute();
+    const rows = await app.lab.db.selectFrom("tool").select("name").where("current_version_id", "is not", null).orderBy("created_at").execute();
     const tools = [];
     for (const row of rows) {
       const view = await app.lab.db.transaction().execute((trx) => toolSummary(app.lab, trx, row.name));
