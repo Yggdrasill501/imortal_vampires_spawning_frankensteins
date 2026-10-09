@@ -10,7 +10,8 @@ import { Engine, STORE_KEY } from "./engine";
 
 const SCENARIO_KEY = "lab-mock-scenario";
 const SCENARIOS: MockScenario[] = ["empty", "story", "full"];
-const DEFAULT_SCENARIO: MockScenario = "story";
+// The public demo opens on a night already lived, so every screen has something on it.
+const DEFAULT_SCENARIO: MockScenario = "full";
 
 function read(key: string): string | null {
   try {

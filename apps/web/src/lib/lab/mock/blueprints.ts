@@ -1,6 +1,6 @@
 /**
  * Made-up records for the simulation: the reference scenarios (a night-shift
- * HR clerk; Gmail read-only, the OrangeHRM demo, the ParaBank demo) and a few
+ * HR clerk; Gmail read-only, the OrangeHRM demo, a made-up payroll ledger) and a few
  * extra processes so every state can be shown. Nothing here is real data.
  */
 import type {
@@ -14,7 +14,7 @@ import type {
 
 export const GMAIL = "gmail";
 export const ORANGE = "opensource-demo.orangehrmlive.com";
-export const PARABANK = "parabank.parasoft.com";
+export const LEDGER = "ledger.example";
 export const EVIL = "evil.example";
 
 export const SITES: Record<string, SiteRef> = {
@@ -30,8 +30,8 @@ export const SITES: Record<string, SiteRef> = {
     readOnly: false,
     loginNeeded: true,
   },
-  [PARABANK]: {
-    site: PARABANK,
+  [LEDGER]: {
+    site: LEDGER,
     kind: "website",
     readOnly: false,
     loginNeeded: true,
@@ -183,13 +183,13 @@ export const TOOLS: Record<string, ToolBlueprint> = {
       f("Newest", `${p.first} ${p.last} (${p.empId})`),
     ],
   },
-  parabank_open_account: {
+  ledger_open_account: {
     description:
-      "Registers a customer in ParaBank and returns the new account number.",
-    sites: [PARABANK],
+      "Registers a customer in the payroll ledger and returns the new account number.",
+    sites: [LEDGER],
     kind: "writes",
     explore: [
-      ["open_page", `Opened ${PARABANK}/parabank/register.htm.`],
+      ["open_page", `Opened ${LEDGER}/register.htm.`],
       ["type", "Typed the first name."],
       ["type", "Typed the last name."],
       ["type", "Typed the address fields."],
@@ -279,22 +279,22 @@ export const TOOLS: Record<string, ToolBlueprint> = {
       f("Amount", "1,240.00"),
     ],
   },
-  parabank_login: {
-    description: "Signs in to ParaBank with the login held by the lab.",
-    sites: [PARABANK],
+  ledger_login: {
+    description: "Signs in to the payroll ledger with the login held by the lab.",
+    sites: [LEDGER],
     kind: "reads",
     explore: [
-      ["open_page", `Opened ${PARABANK}/parabank/index.htm.`],
+      ["open_page", `Opened ${LEDGER}/index.htm.`],
       ["type", "Typed the user name."],
       ["type", "Typed the password."],
       ["click", 'Clicked "Log In".'],
     ],
     result: () => [f("Signed in", "yes")],
   },
-  parabank_transfer_funds: {
+  ledger_transfer_funds: {
     description:
-      "Transfers an amount between two ParaBank accounts and returns the transfer line.",
-    sites: [PARABANK],
+      "Transfers an amount between two payroll ledger accounts and returns the transfer line.",
+    sites: [LEDGER],
     kind: "writes",
     explore: [
       ["click", 'Clicked "Transfer Funds".'],
@@ -307,9 +307,9 @@ export const TOOLS: Record<string, ToolBlueprint> = {
       f("Transfer", `T-${p.account}`),
     ],
   },
-  parabank_read_balance: {
-    description: "Reads the balance of every account in ParaBank's overview.",
-    sites: [PARABANK],
+  ledger_read_balance: {
+    description: "Reads the balance of every account in the payroll ledger's overview.",
+    sites: [LEDGER],
     kind: "reads",
     explore: [
       ["click", 'Clicked "Accounts Overview".'],
@@ -433,19 +433,19 @@ export const BLUEPRINTS: Record<string, ProcessBlueprint> = {
     key: "account",
     name: "Opening their vein in the ledger",
     description:
-      "For each employee newly added to OrangeHRM, open a payroll account in ParaBank.",
-    criterion: "ParaBank shows an account number for the new person.",
-    sites: [ORANGE, PARABANK],
+      "For each employee newly added to OrangeHRM, open a payroll account in the payroll ledger.",
+    criterion: "The payroll ledger shows an account number for the new person.",
+    sites: [ORANGE, LEDGER],
     schedule: { kind: "daily", time: "02:30" },
     chain: [
       "orangehrm_login",
       "orangehrm_list_new_employees",
       "orangehrm_find_employee",
-      "parabank_open_account",
+      "ledger_open_account",
     ],
     check: {
       name: "Account number",
-      description: "a ParaBank account number for the employee",
+      description: "a ledger account number for the employee",
     },
     label: (p) => `Employee: ${p.first} ${p.last} (${p.empId})`,
     itemFields: (p) => [
@@ -532,19 +532,19 @@ export const BLUEPRINTS: Record<string, ProcessBlueprint> = {
     key: "dues",
     name: "Paying the night's dues",
     description:
-      "For each expense claim approved in OrangeHRM, transfer the amount in ParaBank.",
-    criterion: "ParaBank shows a completed transfer for the amount.",
-    sites: [ORANGE, PARABANK],
+      "For each expense claim approved in OrangeHRM, transfer the amount in the payroll ledger.",
+    criterion: "The payroll ledger shows a completed transfer for the amount.",
+    sites: [ORANGE, LEDGER],
     schedule: { kind: "daily", time: "04:00" },
     chain: [
       "orangehrm_login",
       "orangehrm_list_approved_claims",
-      "parabank_login",
-      "parabank_transfer_funds",
+      "ledger_login",
+      "ledger_transfer_funds",
     ],
     check: {
       name: "Transfer",
-      description: "a transfer confirmation from ParaBank",
+      description: "a transfer confirmation from the payroll ledger",
     },
     label: (p) => `Claim: ${p.first} ${p.last}, 1,240.00`,
     itemFields: (p) => [
@@ -559,11 +559,11 @@ export const BLUEPRINTS: Record<string, ProcessBlueprint> = {
     key: "tally",
     name: "Reading the tally",
     description:
-      "Every night, read the balance of the payroll accounts in ParaBank.",
+      "Every night, read the balance of the payroll accounts in the payroll ledger.",
     criterion: "There is a total for tonight.",
-    sites: [PARABANK],
+    sites: [LEDGER],
     schedule: { kind: "daily", time: "04:30" },
-    chain: ["parabank_login", "parabank_read_balance"],
+    chain: ["ledger_login", "ledger_read_balance"],
     check: { name: "Total", description: "a total balance" },
     label: () => "Tonight's accounts overview",
     itemFields: () => [f("Night", "8 Oct 2026")],
@@ -571,8 +571,8 @@ export const BLUEPRINTS: Record<string, ProcessBlueprint> = {
     tokensPerTool: 8700,
     failFirst: {
       reason:
-        "The Relic parabank_read_balance named rates.example, which is not in the Invitation. It was not installed.",
-      tool: "parabank_read_balance",
+        "The Relic ledger_read_balance named rates.example, which is not in the Invitation. It was not installed.",
+      tool: "ledger_read_balance",
       site: "rates.example",
     },
     inbox: [{ person: P[9], outcome: { kind: "pass" } }],
@@ -637,7 +637,7 @@ export const REFERENCE_TRANSCRIPT: TranscriptTurn[] = [
   { speaker: "agent", text: "And after that?" },
   {
     speaker: "user",
-    text: "For every new employee I open a payroll account in ParaBank: register them, then copy the account number. That is another eight minutes each.",
+    text: "For every new employee I open a payroll account in the payroll ledger: register them, then copy the account number. That is another eight minutes each.",
   },
   { speaker: "agent", text: "Is there anything for people who leave?" },
   {

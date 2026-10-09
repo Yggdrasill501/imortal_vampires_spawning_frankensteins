@@ -623,7 +623,7 @@ export class Engine {
       steps.push({
         t: "action",
         kind: "search_shelf",
-        text: `Searched the Reliquary for "${words(tool)}". Found 0.`,
+        text: `Searched the Library for "${words(tool)}". Found 0.`,
       });
       for (const [kind, text] of TOOLS[tool].explore)
         steps.push({ t: "action", kind, text });
@@ -646,7 +646,7 @@ export class Engine {
       steps.push({
         t: "action",
         kind: "search_shelf",
-        text: `Searched the Reliquary for "${words(tool)}". Found ${have ? 1 : 0}.`,
+        text: `Searched the Library for "${words(tool)}". Found ${have ? 1 : 0}.`,
       });
       if (have) {
         steps.push({ t: "reuse", tool });
@@ -1315,7 +1315,7 @@ export class Engine {
       {
         t: "action",
         kind: "search_shelf",
-        text: `Searched the Reliquary for "${tool.name}". Found 1.`,
+        text: `Searched the Library for "${tool.name}". Found 1.`,
       },
       {
         t: "action",
