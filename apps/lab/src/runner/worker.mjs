@@ -1,4 +1,5 @@
 import { pathToFileURL } from "node:url";
+import { connectorsFor } from "../connectors/registry.ts";
 
 async function readRequest() {
   let body = "";
@@ -185,6 +186,7 @@ async function executeTool(runtime, tool, input, stepId) {
   };
   runtime.active = state;
   const logs = [];
+  let bound = null;
   try {
     const moduleUrl = `${pathToFileURL(tool.codePath).href}?run=${encodeURIComponent(`${Date.now()}-${Math.random()}`)}`;
     const loaded = await import(moduleUrl);
@@ -201,16 +203,8 @@ async function executeTool(runtime, tool, input, stepId) {
         return match ? [[site, match[1]]] : [];
       }),
     );
-    const connectors = Object.fromEntries(
-      tool.meta.connectors.map((connector) => [
-        connector,
-        {
-          call: async () => {
-            throw new Error(`The ${connector} connector is not configured in this runner slice.`);
-          },
-        },
-      ]),
-    );
+    bound = connectorsFor(tool.meta.connectors, { mail: runtime.request.mail ?? null });
+    const connectors = bound.connectors;
     const result = await withTimeout(
       loaded.default({
         ...(page ? { page } : {}),
@@ -252,6 +246,7 @@ async function executeTool(runtime, tool, input, stepId) {
     );
   } finally {
     runtime.active = null;
+    await bound?.close();
   }
 }
 

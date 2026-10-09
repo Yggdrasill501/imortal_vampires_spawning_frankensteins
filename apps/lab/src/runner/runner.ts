@@ -2,6 +2,8 @@ import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { readMailSettings } from "../connectors/settings.ts";
+import type { MailSettings } from "../connectors/types.ts";
 import {
   checkToolVersion,
   firstLine,
@@ -39,6 +41,7 @@ interface WorkerRequest {
   input?: Record<string, unknown>;
   check?: string;
   scope: RunScope;
+  mail: MailSettings | null;
 }
 
 interface WorkerResponse<T> {
@@ -56,6 +59,7 @@ export class Runner {
       headless: options.headless ?? process.env.LAB_HEADLESS === "1",
       stepTimeoutMs: options.stepTimeoutMs ?? DEFAULT_STEP_TIMEOUT_MS,
       runTimeoutMs: options.runTimeoutMs ?? DEFAULT_RUN_TIMEOUT_MS,
+      mail: options.mail === undefined ? readMailSettings(process.env) : options.mail,
     };
   }
 
@@ -79,6 +83,7 @@ export class Runner {
           stepTimeoutMs: this.options.stepTimeoutMs,
           source: { ...asWorkerTool(source.toolVersion), input: source.input },
           scope,
+          mail: this.options.mail,
         },
         this.options.runTimeoutMs,
         scope,
@@ -120,6 +125,7 @@ export class Runner {
           item,
           check: chain.check,
           scope,
+          mail: this.options.mail,
         },
         this.options.runTimeoutMs,
         scope,
@@ -167,6 +173,7 @@ export class Runner {
           tool: asWorkerTool(tool),
           input,
           scope,
+          mail: this.options.mail,
         },
         this.options.runTimeoutMs,
         scope,
@@ -238,6 +245,7 @@ export class Runner {
         tool,
         input: { url: target.toString() },
         scope,
+        mail: this.options.mail,
       },
       this.options.runTimeoutMs,
       scope,

@@ -78,6 +78,62 @@ test("refuses a tool whose site is outside the process", async () => {
   assert.match(ran.error ?? "", /^install: /);
 });
 
+test("hands a tool that declares gmail a connector that searches the mailbox through the worker", async () => {
+  const shelfDir = await makeShelf();
+  await writeVersion(shelfDir, "list_mail", 1, {
+    name: "list_mail",
+    description: "Lists recent messages from the mailbox.",
+    sites: [],
+    connectors: ["gmail"],
+    effect: "reads",
+    lists_items: true,
+    input: {},
+    output: { items: "The recent messages." },
+  }, `export default async function listMail({ connectors }) {
+  const found = await connectors.gmail.call("search", { limit: 2 });
+  return {
+    items: found.messages.map((message) => ({
+      id: message.id,
+      label: message.subject,
+      data: { from: message.from, date: message.date },
+    })),
+  };
+}
+`);
+  const fixture = [1, 2, 3].map((uid) => ({
+    uid,
+    messageId: `<message-${uid}@example.com>`,
+    subject: `Message ${uid}`,
+    from: `sender${uid}@example.com`,
+    date: `2026-02-0${uid}T09:00:00.000Z`,
+    text: `Body ${uid}.`,
+  }));
+  const mailScope: RunScope = {
+    invitation: { sites: [], connectors: ["gmail"] },
+    process: { sites: [], connectors: ["gmail"] },
+  };
+  const mailChain: Chain = { steps: [{ id: "source", tool: "list_mail", input: {} }], check: "$item.from" };
+
+  const runner = new Runner({
+    shelfDir,
+    headless: true,
+    mail: { user: "mailbox@example.com", pass: "app-password-value", host: "imap.example.com", port: 993, fixture },
+  });
+  const listed = await runner.listItems(mailChain, mailScope);
+  assert.equal(listed.error, null);
+  assert.equal(listed.status, "passed");
+  assert.deepEqual(listed.items.map((item) => item.label), ["Message 3", "Message 2"]);
+  assert.equal(listed.items[0]?.id, "<message-3@example.com>");
+
+  const unconfigured = new Runner({ shelfDir, headless: true, mail: null });
+  const failed = await unconfigured.listItems(mailChain, mailScope);
+  assert.equal(failed.status, "failed");
+  assert.equal(failed.error, "tool: The gmail connector needs LAB_MAIL_USER and LAB_MAIL_PASS to be set.");
+
+  const undeclared = await runner.listItems(chain, emptyScope);
+  assert.equal(undeclared.status, "passed");
+});
+
 const emptyScope: RunScope = {
   invitation: { sites: [], connectors: [] },
   process: { sites: [], connectors: [] },

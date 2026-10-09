@@ -1,3 +1,4 @@
+import type { MailSettings } from "../connectors/types.ts";
 import type { InvitationScope, ToolMeta, ToolVersion } from "../shelf/types.ts";
 
 export interface Login {
@@ -94,6 +95,8 @@ export interface RunnerOptions {
   headless?: boolean;
   stepTimeoutMs?: number;
   runTimeoutMs?: number;
+  /** Mailbox settings for the gmail connector. Omit to read LAB_MAIL_* from the environment; null for none. */
+  mail?: MailSettings | null;
 }
 
 export interface PreparedStep extends Omit<ChainStep, "version"> {
