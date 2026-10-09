@@ -280,7 +280,8 @@ export const TOOLS: Record<string, ToolBlueprint> = {
     ],
   },
   ledger_login: {
-    description: "Signs in to the payroll ledger with the login held by the lab.",
+    description:
+      "Signs in to the payroll ledger with the login held by the lab.",
     sites: [LEDGER],
     kind: "reads",
     explore: [
@@ -308,7 +309,8 @@ export const TOOLS: Record<string, ToolBlueprint> = {
     ],
   },
   ledger_read_balance: {
-    description: "Reads the balance of every account in the payroll ledger's overview.",
+    description:
+      "Reads the balance of every account in the payroll ledger's overview.",
     sites: [LEDGER],
     kind: "reads",
     explore: [

@@ -3097,7 +3097,6 @@ body.on-tonight .bars:has(.bar) {
   background: rgba(8, 7, 7, 0.78);
 }
 
-
 /* The landing is the front door of the public demo: no status bars over the castle. */
 body.on-tonight .bars {
   display: none;
