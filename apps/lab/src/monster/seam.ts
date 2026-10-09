@@ -29,7 +29,8 @@ export function createMonsterSeam(deps: MonsterSeamDeps): MonsterSeam {
         processId: input.processId,
         kind: input.kind,
       });
-      if ("error" in brief) return { outcome: "gave_up", error: brief.error };
+      // A repair brief also has a field named `error` (the tool's failure), so the kind decides.
+      if (!("kind" in brief)) return { outcome: "gave_up", error: brief.error };
       if (brief.kind !== input.kind) {
         return { outcome: "gave_up", error: "The brief does not match the kind of work." };
       }
