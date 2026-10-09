@@ -1,0 +1,62 @@
+$ tsx src/monster/cli.ts learn --id learn-add --name 'Add an employee' --description 'add an employee with a first name, last name and job title' --criterion 'The employee is in the employee list with that first name, last name and job title.' --site env:ORANGEHRM_URL --login ORANGEHRM_USERNAME,ORANGEHRM_PASSWORD --item '{"first_name":"Igor","last_name":"Zztestone","job_title":"Lab Assistant"}' --item '{"first_name":"Mina","last_name":"Zztesttwo","job_title":"Grave Keeper"}'
+Monster learn-add is learning. Workspace: <repo>/.lab/proof/workspaces/learn-add
+  - Looked at the shelf.
+  - Opened https://<hr-host>/.
+  - Read the page.
+  - Filled in 2 fields.
+  - Clicked Login button.
+  - Clicked PIM link.
+  - Clicked Add Employee link.
+  - Read the page.
+  - Clicked Employee List link.
+  - Read the page.
+  - Clicked Job Title dropdown.
+  - Opened https://<hr-host>/admin/viewJobTitleList.
+  - Opened https://<hr-host>/pim/viewPersonalDetails/empNumber/1.
+  - Clicked Job link.
+  - Read the page.
+  - Opened https://<hr-host>/pim/addEmployee.
+  - Filled in 2 fields.
+  - Read the page.
+  - Searched the shelf for items.
+  - Wrote the tool handed_items.
+  - Wrote the tool sign_in_orangehrm.
+  - Wrote the tool add_employee.
+  - Wrote the tool set_job_title.
+  - Wrote the tool find_employee_in_list.
+  - Wrote the chain.
+  - Tested handed_items: it passed.
+  - Tested sign_in_orangehrm: it passed.
+  - Ran the chain up to add: it passed.
+  - Ran the chain up to job: it passed.
+  - Ran the chain: it failed. tool: page.goto: net::ERR_ABORTED at https://<hr-host>/auth/login.
+  - Ran the chain: it failed. tool: locator.waitFor: Timeout 30000ms exceeded.
+  - Opened https://<hr-host>/auth/login.
+  - Changed the tool find_employee_in_list.
+  - Changed the tool find_employee_in_list.
+  - Ran the chain: it passed.
+  - Looked at the shelf.
+  - Changed the tool add_employee.
+  - Changed the tool set_job_title.
+  - Changed the tool find_employee_in_list.
+
+Session: ended normally
+Took: 6m 3s   Tokens: 58017 in, 14336 out, 1520832 cached.
+Tools created: handed_items, sign_in_orangehrm, add_employee, set_job_title, find_employee_in_list
+Tools reused: none
+Chain: items (handed_items) -> sign_in (sign_in_orangehrm) -> add (add_employee) -> job (set_job_title) -> verify (find_employee_in_list)
+Proof: $steps.verify.found. Shows the new employee appears in the employee list with the expected first name, last name and job title.
+Installed handed_items v1 on the shelf.
+Installed sign_in_orangehrm v1 on the shelf.
+Installed add_employee v1 on the shelf.
+Installed set_job_title v1 on the shelf.
+Installed find_employee_in_list v1 on the shelf.
+Saved the process: <repo>/.lab/proof/processes/learn-add.json
+Run of "Mina Zztesttwo": passed, 0 model calls.
+  passed  sign_in_orangehrm v1 (6s)
+  passed  add_employee v1 (9s)
+  passed  set_job_title v1 (5s)
+  passed  find_employee_in_list v1 (3s)
+  proof: Mina Zztesttwo · Grave Keeper
+Result: VERIFIED. The saved chain ran on the second example with 0 model calls.
+exit 0

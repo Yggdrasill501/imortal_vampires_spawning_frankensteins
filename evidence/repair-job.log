@@ -1,0 +1,30 @@
+$ tsx src/monster/cli.ts repair --id repair-job --process <repo>/.lab/proof/processes/learn-add.json --item '{"first_name":"Renfield","last_name":"Zzbroken","job_title":"Lab Assistant"}'
+Run of "Renfield Zzbroken": failed, 0 model calls.
+  passed  sign_in_orangehrm v1 (6s)
+  passed  add_employee v1 (8s)
+  failed  set_job_title v1 (33s)  tool: locator.click: Timeout 30000ms exceeded.
+  error: tool: locator.click: Timeout 30000ms exceeded.
+Monster repair-job is repairing set_job_title v1. Workspace: <repo>/.lab/proof/workspaces/repair-job
+  - Looked at the shelf.
+  - Ran the chain up to job: it failed. tool: locator.click: Timeout 30000ms exceeded.
+  - Opened https://<hr-host>/.
+  - Read the page.
+  - Filled in 2 fields.
+  - Clicked Login button.
+  - Opened https://<hr-host>/pim/viewJobDetails/empNumber/10.
+  - Clicked Job Title select.
+  - Wrote the tool set_job_title.
+  - Ran the chain up to job: it passed.
+
+Session: ended normally
+Took: 2m 11s   Tokens: 32983 in, 2298 out, 372864 cached.
+What changed: The save control is labeled Save, so the tool now clicks that button instead of the missing Confirm changes label.
+Installed set_job_title v2 on the shelf as the candidate.
+Run of "Renfield Zzbroken": passed, 0 model calls.
+  passed  sign_in_orangehrm v1 (6s)
+  passed  add_employee v1 (8s)
+  passed  set_job_title v2 (4s)
+  passed  find_employee_in_list v1 (2s)
+  proof: Renfield Zzbroken · Lab Assistant
+Result: FIXED. The failed item was run again with 0 model calls.
+exit 0

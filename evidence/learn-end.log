@@ -1,0 +1,61 @@
+$ tsx src/monster/cli.ts learn --id learn-end --name 'End an employment' --description 'end an employee'"'"'s employment on a given date' --criterion 'The employee'"'"'s record shows the employment as ended on that date.' --site env:ORANGEHRM_URL --login ORANGEHRM_USERNAME,ORANGEHRM_PASSWORD --item '{"first_name":"Victor","last_name":"Zzleaver","end_date":"2026-10-30"}' --item '{"first_name":"Elsa","last_name":"Zzgoner","end_date":"2026-10-31"}'
+Monster learn-end is learning. Workspace: <repo>/.lab/proof/workspaces/learn-end
+  - Looked at the shelf.
+  - Opened https://<hr-host>/.
+  - Searched the shelf for end terminat employee job.
+  - Read the page.
+  - Filled in 2 fields.
+  - Clicked Login button.
+  - Opened https://<hr-host>/pim/viewEmployeeList.
+  - Typed into Employee Name search textbox.
+  - Clicked Victor Zzleaver employee list row.
+  - Opened https://<hr-host>/pim/viewJobDetails/empNumber/7.
+  - Clicked Terminate Employment button.
+  - Clicked Termination Reason dropdown.
+  - Clicked Cancel button on termination dialog.
+  - Pressed Escape.
+  - Read the page.
+  - Wrote the tool find_employee_number.
+  - Wrote the tool terminate_employment.
+  - Wrote the chain.
+  - Ran the chain up to find: it failed. tool: locator.waitFor: Timeout 30000ms exceeded.
+  - Opened https://<hr-host>/pim/viewEmployeeList.
+  - Changed the tool find_employee_number.
+  - Ran the chain up to find: it passed.
+  - Ran the chain: it failed. tool: locator.waitFor: Timeout 30000ms exceeded.
+  - Opened https://<hr-host>/pim/viewJobDetails/empNumber/7.
+  - Changed the tool terminate_employment.
+  - Ran the chain: it failed. tool: locator.waitFor: Timeout 30000ms exceeded.
+  - Opened https://<hr-host>/pim/viewEmployeeList.
+  - Changed the tool find_employee_number.
+  - Ran the chain: it failed. tool: locator.click: Timeout 30000ms exceeded.
+  - Pressed Escape.
+  - Read the page.
+  - Clicked Termination Reason dropdown.
+  - Clicked Cancel button.
+  - Changed the tool terminate_employment.
+  - Ran the chain: it failed. tool: locator.waitFor: Timeout 30000ms exceeded.
+  - Changed the tool terminate_employment.
+  - Ran the chain: it failed. tool: locator.waitFor: Timeout 30000ms exceeded.
+  - Opened https://<hr-host>/directory/viewDirectory.
+  - Changed the tool find_employee_number.
+  - Ran the chain: it passed.
+  - Ran the chain: it passed.
+  - Changed the tool find_employee_number.
+  - Changed the tool terminate_employment.
+  - Ran the chain: it passed.
+
+Session: ended normally
+Took: 17m 30s   Tokens: 85124 in, 30156 out, 4003200 cached.
+Tools created: find_employee_number, terminate_employment
+Tools reused: handed_items, sign_in_orangehrm
+Chain: items (handed_items) -> sign_in (sign_in_orangehrm) -> find (find_employee_number) -> end (terminate_employment)
+Proof: $steps.end.ended_on. Shows the termination date saved on the employee job record after employment ends.
+Installed find_employee_number v1 on the shelf.
+Installed terminate_employment v1 on the shelf.
+Saved the process: <repo>/.lab/proof/processes/learn-end.json
+Result: NOT VERIFIED. There was no second example to check the work on.
+<repo>/apps/lab:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @repo/lab@0.1.0 monster: `tsx src/monster/cli.ts learn --id learn-end --name 'End an employment' --description 'end an employee'"'"'s employment on a given date' --criterion 'The employee'"'"'s record shows the employment as ended on that date.' --site env:ORANGEHRM_URL --login ORANGEHRM_USERNAME,ORANGEHRM_PASSWORD --item '{"first_name":"Victor","last_name":"Zzleaver","end_date":"2026-10-30"}' --item '{"first_name":"Elsa","last_name":"Zzgoner","end_date":"2026-10-31"}'`
+Exit status 1
+exit 1
