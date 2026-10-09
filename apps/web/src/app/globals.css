@@ -1642,3 +1642,486 @@ dialog.confirm::backdrop {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ───────── Shell: side navigation on every screen but the landing ───────── */
+.shell {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  min-height: 100vh;
+}
+.shell-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+  padding: 1.7rem 1.1rem 1.4rem;
+  border-right: 1px solid var(--gilt-dim);
+  background: linear-gradient(180deg, var(--crypt) 0%, var(--night) 100%);
+  z-index: 5;
+}
+.side .brand {
+  display: block;
+  min-height: 0;
+  padding-inline: 0.7rem;
+  white-space: normal;
+  font-size: 1.22rem;
+  line-height: 1.12;
+}
+.side-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.side-links li:nth-child(4) {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hair);
+}
+.side-links a {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding-inline: 0.7rem;
+  border-left: 2px solid transparent;
+  font-family: var(--label);
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--vellum);
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+.side-links .numeral {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ash);
+}
+.side-links a:hover {
+  color: var(--ember);
+}
+.side-links a[aria-current="page"] {
+  color: var(--ember);
+  border-left-color: var(--ember);
+  background: linear-gradient(90deg, rgba(179, 18, 27, 0.24), transparent 85%);
+}
+.side-links a[aria-current="page"] .numeral {
+  color: var(--ember);
+}
+.side-foot {
+  margin-top: auto;
+  padding-inline: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--ash);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.side-foot .btn-text {
+  min-height: 0;
+  padding: 0;
+}
+.side-foot .facts > div {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+body.on-tonight .shell {
+  grid-template-columns: minmax(0, 1fr);
+}
+body.on-tonight .side {
+  display: none;
+}
+body.on-tonight .bars:has(.bar) {
+  padding-top: 0;
+}
+
+/* ───────── Landing ───────── */
+.hero.landing {
+  min-height: 100vh;
+  padding-top: 0;
+}
+.hero.landing .pitch {
+  align-self: center;
+}
+.path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+  max-width: 30rem;
+}
+.path li {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  align-items: baseline;
+}
+.path .numeral {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--ember);
+}
+.path strong {
+  display: block;
+  font-family: var(--label);
+  font-weight: 400;
+  font-size: 0.86rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.path .ash {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+/* ───────── Interview: the spell book ───────── */
+.book {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 66rem;
+  margin-inline: auto;
+  filter: drop-shadow(0 34px 40px rgba(0, 0, 0, 0.75));
+}
+.book::before {
+  content: "";
+  position: absolute;
+  inset: -0.7rem -0.9rem -1rem;
+  z-index: -1;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2a0a0d, #140506);
+  box-shadow: inset 0 0 0 1px rgba(201, 191, 178, 0.18);
+}
+.page {
+  position: relative;
+  min-height: 36rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 2.2rem 2.4rem 2.4rem;
+  border: 1px solid #332b24;
+  outline: 1px solid rgba(201, 191, 178, 0.1);
+  outline-offset: -0.8rem;
+}
+.page.left {
+  align-items: center;
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
+  background: linear-gradient(
+    90deg,
+    #16120f 0%,
+    #1b1612 78%,
+    #120e0c 94%,
+    #070505 100%
+  );
+}
+.page.right {
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(
+    270deg,
+    #16120f 0%,
+    #1b1612 78%,
+    #120e0c 94%,
+    #070505 100%
+  );
+}
+.page-title {
+  align-self: center;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--hair);
+}
+.page.left .eclipse-stage {
+  flex: 1;
+  justify-content: center;
+  padding-block: 0;
+}
+.page .bar .wrap {
+  padding-inline: 1rem;
+}
+.page-words {
+  flex: 1;
+  min-height: 9rem;
+  max-height: 19rem;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+}
+.page.right textarea {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ───────── The Forge ───────── */
+.band.forge {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100vh;
+  padding-bottom: 13rem;
+}
+.forge-scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      70% 30rem at 50% 100%,
+      rgba(255, 61, 46, 0.2),
+      rgba(179, 18, 27, 0.08) 55%,
+      transparent 78%
+    ),
+    var(--night);
+}
+.forge-scene .anvil {
+  position: absolute;
+  right: 3%;
+  bottom: -0.4rem;
+  width: min(21rem, 34%);
+  opacity: 0.8;
+  fill: #0b0707;
+  stroke: rgba(255, 61, 46, 0.3);
+  stroke-width: 0.6;
+  filter: drop-shadow(0 -8px 34px rgba(255, 61, 46, 0.28));
+}
+.spark {
+  position: absolute;
+  bottom: 5rem;
+  right: 18%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 8px 1px rgba(255, 61, 46, 0.9);
+  opacity: 0;
+  animation: spark 5.5s linear infinite;
+}
+.spark:nth-child(3n) {
+  right: 12%;
+  animation-duration: 7s;
+}
+.spark:nth-child(3n + 1) {
+  right: 24%;
+  animation-duration: 6.2s;
+}
+.spark:nth-child(2) {
+  animation-delay: 0.6s;
+  --dx: -4rem;
+}
+.spark:nth-child(3) {
+  animation-delay: 1.4s;
+  --dx: 3rem;
+}
+.spark:nth-child(4) {
+  animation-delay: 2.1s;
+  --dx: -7rem;
+}
+.spark:nth-child(5) {
+  animation-delay: 2.9s;
+  --dx: 5rem;
+}
+.spark:nth-child(6) {
+  animation-delay: 3.4s;
+  --dx: -2rem;
+}
+.spark:nth-child(7) {
+  animation-delay: 4s;
+  --dx: 8rem;
+}
+.spark:nth-child(8) {
+  animation-delay: 4.6s;
+  --dx: -9rem;
+}
+.spark:nth-child(9) {
+  animation-delay: 5.1s;
+  --dx: 1rem;
+}
+.spark:nth-child(10) {
+  animation-delay: 1.9s;
+  --dx: 6rem;
+}
+@keyframes spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  8% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 2rem), -26rem);
+  }
+}
+/* Each process being forged reads like a leaf of old script: ruled lines and a lit initial. */
+.forge .lab .card::before {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 1.72rem,
+      rgba(201, 191, 178, 0.045) 1.72rem calc(1.72rem + 1px)
+    ),
+    linear-gradient(180deg, #1a1512 0%, var(--crypt) 70%);
+}
+.forge .lab .panel-head h3::first-letter {
+  color: var(--ember);
+  font-size: 1.5em;
+  font-style: italic;
+  text-shadow: 0 0 18px rgba(255, 61, 46, 0.45);
+}
+.kept {
+  margin-top: 3.4rem;
+}
+.kept:empty {
+  display: none;
+}
+
+@media (max-width: 51rem) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side {
+    position: static;
+    height: auto;
+    gap: 0.6rem;
+    padding: 0.9rem 1rem 0.4rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--gilt-dim);
+  }
+  .side .brand {
+    padding-inline: 0;
+    font-size: 1.05rem;
+  }
+  .side-links {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0;
+  }
+  .side-links li:nth-child(4) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .side-links a {
+    grid-template-columns: auto auto;
+    white-space: nowrap;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    padding-inline: 0.7rem;
+  }
+  .side-links a[aria-current="page"] {
+    border-bottom-color: var(--ember);
+    background: none;
+  }
+  .side-links .numeral,
+  .side-foot {
+    display: none;
+  }
+  .book {
+    grid-template-columns: 1fr;
+  }
+  .page {
+    min-height: 0;
+    border: 1px solid #332b24;
+    border-radius: 8px;
+  }
+  .page.left {
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+  }
+  .page.right {
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+  }
+  .forge-scene .anvil {
+    opacity: 0.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spark {
+    animation: none;
+  }
+}
+
+/* ───────── Landing: the economy ───────── */
+.economy {
+  border-top: 1px solid var(--gilt-dim);
+  background: var(--night);
+}
+.economy h2 {
+  margin-top: 0.6rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+.costs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-top: 2.2rem;
+}
+.cost {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.6rem 1.5rem 1.4rem;
+  border: 1px solid var(--gilt-dim);
+  background: var(--crypt);
+}
+.cost.lit {
+  border-color: rgba(255, 61, 46, 0.45);
+  background: linear-gradient(180deg, rgba(122, 3, 11, 0.22), var(--crypt) 70%);
+}
+.cost-figure {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
+  line-height: 1;
+}
+.cost.lit .cost-figure {
+  color: var(--ember);
+}
+.cost ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.cost-note {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  font-size: 0.86rem;
+}
+.cost-live {
+  margin-top: 1.6rem;
+  color: var(--ash);
+}
+.cost-live strong {
+  color: var(--vellum);
+}
+@media (max-width: 51rem) {
+  .costs {
+    grid-template-columns: 1fr;
+  }
+}

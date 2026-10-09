@@ -449,7 +449,7 @@ function Body({
         ) : null}
         {status === "queued" ? (
           <p>
-            <Link href="/lab">Watch in the Lab</Link>
+            <Link href="/lab">Watch in the Forge</Link>
           </p>
         ) : null}
 
@@ -483,7 +483,7 @@ function Body({
           <p>
             Retired on {dateTime(process.retiredAt)}. Its{" "}
             <Term word="Relic">Relics</Term> stay in the{" "}
-            <Term word="Reliquary" />.
+            <Term word="Library" />.
           </p>
         ) : null}
 
@@ -532,7 +532,7 @@ function Body({
         onClose={() => setRetiring(false)}
       >
         Its schedule stops and it leaves Tonight. Its Relics stay in the
-        Reliquary and its runs are kept. This cannot be undone.
+        Library and its runs are kept. This cannot be undone.
       </ConfirmDialog>
     </>
   );

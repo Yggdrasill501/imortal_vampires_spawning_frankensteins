@@ -31,7 +31,7 @@ export function Reliquary() {
         <SectionHead
           label={
             <>
-              The <Term word="Reliquary" />
+              The <Term word="Library" />
             </>
           }
           title={
@@ -50,7 +50,7 @@ export function Reliquary() {
               <div className="stack-sm">
                 <EmptyShelf niches={12} />
                 <p>
-                  The Reliquary is empty. No Relic exists until a Familiar makes
+                  The Library is empty. No Relic exists until a Familiar makes
                   one.
                 </p>
                 <p className="ash">
@@ -319,7 +319,7 @@ function Detail({ tool }: { tool: Tool }) {
           )}
         </section>
         <p>
-          <Link href="/reliquary">Back to the Reliquary</Link>
+          <Link href="/reliquary">Back to the Library</Link>
         </p>
       </div>
     </>

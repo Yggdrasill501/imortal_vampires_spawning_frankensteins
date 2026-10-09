@@ -13,7 +13,7 @@ import {
   useRefusalsSeenAt,
 } from "@/lib/lab/provider";
 import { SpillDefs } from "./blood";
-import { Button, Diamond, GLOSSARY_ENTRIES } from "./ui";
+import { Diamond, GLOSSARY_ENTRIES } from "./ui";
 
 /** Every refusal, newest first, gathered from the runs and Familiar sessions they belong to. */
 export async function readRefusals(client: LabClient): Promise<Refusal[]> {
@@ -30,23 +30,34 @@ export async function readRefusals(client: LabClient): Promise<Refusal[]> {
 export function Wordmark() {
   return (
     <span>
-      imortal<b>_</b>vampires<b>_</b>spawning<b>_</b>frankenstains
+      imortal<b>_</b>vampires
+      <wbr />
+      <b>_</b>spawning
+      <wbr />
+      <b>_</b>frankenstains
     </span>
   );
 }
 
 const LINKS = [
-  { href: "/interviews", label: "Interviews" },
-  { href: "/lab", label: "Lab" },
-  { href: "/reliquary", label: "Reliquary" },
-  { href: "/invitation", label: "Invitation" },
-  { href: "/refused", label: "Refused" },
+  { href: "/interview", label: "The Interview", numeral: "I" },
+  { href: "/lab", label: "The Forge", numeral: "II" },
+  { href: "/reliquary", label: "The Library", numeral: "III" },
+  { href: "/interviews", label: "Past interviews", numeral: "IV" },
+  { href: "/invitation", label: "Invitation", numeral: "V" },
+  { href: "/refused", label: "Refused", numeral: "VI" },
 ];
+
+/** A process and its runs are read in the Forge, so the Forge stays lit there. */
+function isCurrent(path: string, href: string): boolean {
+  if (!path) return false;
+  if (href === "/lab" && path.startsWith("/processes")) return true;
+  return path === href || path.startsWith(`${href}/`);
+}
 
 interface NavProps {
   working: boolean;
   unseen: number;
-  className?: string;
 }
 
 /** The current path is URL data, so the part that reads it sits behind Suspense. */
@@ -60,23 +71,19 @@ function NavLinks(props: NavProps) {
 function NavListWithPath(props: NavProps) {
   return <NavList {...props} path={usePathname()} />;
 }
-function NavList({
-  working,
-  unseen,
-  className,
-  path,
-}: NavProps & { path: string }) {
+function NavList({ working, unseen, path }: NavProps & { path: string }) {
   return (
-    <ul className={`nav-links ${className ?? ""}`}>
+    <ul className="side-links">
       {LINKS.map((link) => (
         <li key={link.href}>
           <Link
             href={link.href}
-            aria-current={
-              path && path.startsWith(link.href) ? "page" : undefined
-            }
+            aria-current={isCurrent(path, link.href) ? "page" : undefined}
           >
-            {link.label}
+            <span className="numeral" aria-hidden="true">
+              {link.numeral}
+            </span>
+            <span>{link.label}</span>
             {link.href === "/lab" && working ? (
               <>
                 <Diamond pulse className="ember" />
@@ -269,85 +276,47 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className={live ? "" : "quiet"} style={{ display: "contents" }}>
       <SpillDefs />
-      <header className="topbar">
-        <div className="wrap">
-          <nav className="nav" aria-label="Main">
-            <Link
-              className="brand"
-              href="/"
-              aria-label="imortal vampires spawning frankenstains: Tonight"
-            >
-              <Wordmark />
-            </Link>
-            <NavLinks
-              working={working}
-              unseen={unseen.length}
-              className="wide"
-            />
-            <Button href="/interview" small>
-              Begin an interview
-            </Button>
-            <details className="nav-menu">
-              <summary>
-                Menu
-                {unseen.length ? (
-                  <span className="nav-count" style={{ marginLeft: "0.5rem" }}>
-                    {unseen.length}
-                  </span>
-                ) : null}
-              </summary>
-              <NavLinks working={working} unseen={unseen.length} />
-              <ul
-                style={{
-                  top: "auto",
-                  position: "static",
-                  border: 0,
-                  padding: 0,
-                  minWidth: 0,
-                }}
-                className="nav-links"
-              >
-                <li>
-                  <Link href="/interview">Begin an interview</Link>
-                </li>
-              </ul>
-            </details>
+      <div className="shell">
+        <aside className="side">
+          <Link
+            className="brand"
+            href="/"
+            aria-label="imortal vampires spawning frankenstains: the gate"
+          >
+            <Wordmark />
+          </Link>
+          <nav aria-label="Main">
+            <NavLinks working={working} unseen={unseen.length} />
           </nav>
+          <div className="side-foot">
+            <HealthLine />
+            <details className="glossary">
+              <summary className="btn-text">What the words mean</summary>
+              <dl className="facts tight column">
+                {GLOSSARY_ENTRIES.map(([word, plain]) => (
+                  <div key={word}>
+                    <dt>{word}</dt>
+                    <dd>{plain}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+          </div>
+        </aside>
+        <div className="shell-main">
+          <div className="bars">
+            <ConnectionBar />
+            {newest ? (
+              <Suspense fallback={null}>
+                <RefusalBar newest={newest} />
+              </Suspense>
+            ) : null}
+          </div>
+          <main id="main" style={{ flex: 1 }}>
+            {children}
+          </main>
         </div>
-      </header>
-      <div className="bars">
-        <ConnectionBar />
-        {newest ? (
-          <Suspense fallback={null}>
-            <RefusalBar newest={newest} />
-          </Suspense>
-        ) : null}
       </div>
-      <main id="main" style={{ flex: 1 }}>
-        {children}
-      </main>
-      <footer className="foot">
-        <div className="wrap">
-          <span>Runs on this machine. One user. No sign-in.</span>
-          <HealthLine />
-          <details className="glossary">
-            <summary
-              className="btn-text"
-              style={{ display: "inline-flex", alignItems: "center" }}
-            >
-              What the words mean
-            </summary>
-            <dl className="facts tight column">
-              {GLOSSARY_ENTRIES.map(([word, plain]) => (
-                <div key={word}>
-                  <dt>{word}</dt>
-                  <dd>{plain}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
-        </div>
-      </footer>
       <MockMarker />
     </div>
   );

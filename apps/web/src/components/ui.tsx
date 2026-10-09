@@ -63,7 +63,8 @@ export function SectionHead({
 const GLOSSARY = {
   Familiar: "An AI agent that learns one process, or repairs one tool.",
   Relic: "A small tool the agent wrote. It does one thing.",
-  Reliquary: "The shared collection of all tools.",
+  Forge: "Where agents learn processes and repair tools.",
+  Library: "The shared collection of all tools.",
   Invitation: "The sites you allowed, and their logins.",
   Seal: "Your confirmation that a result is correct.",
   Proof: "The value that must appear for a run to count as passed.",
@@ -353,7 +354,7 @@ export function Card({
   );
 }
 
-/** The dashed niches of an empty Reliquary; filled ones show the shelf filling. */
+/** The dashed niches of an empty Library; filled ones show the shelf filling. */
 export function EmptyShelf({
   niches = 6,
   filled = 0,
@@ -365,7 +366,7 @@ export function EmptyShelf({
     <div
       className="shelf"
       role="img"
-      aria-label={`${niches} niches in the Reliquary, ${Math.min(filled, niches)} filled`}
+      aria-label={`${niches} niches in the Library, ${Math.min(filled, niches)} filled`}
     >
       {Array.from({ length: niches }, (_, i) => (
         <span key={i} className={`niche ${i < filled ? "filled" : ""}`} />

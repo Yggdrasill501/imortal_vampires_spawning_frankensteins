@@ -385,7 +385,7 @@ export function FamiliarPanel({
       ) : null}
       {compact && working ? (
         <p>
-          <Link href="/lab">Watch in the Lab</Link>
+          <Link href="/lab">Watch in the Forge</Link>
         </p>
       ) : null}
     </section>

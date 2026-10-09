@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { MonsterRun, ProcessSummary } from "@repo/contract";
-import { Bats } from "@/components/bats";
+import { ForgeScene } from "@/components/forge-scene";
 import { FamiliarPanel, foldSessions, RelicTile } from "@/components/parts";
 import { Button, EmptyShelf, Read, SectionHead, Term } from "@/components/ui";
 import { count, lastNoon, plural } from "@/lib/format";
 import { useLab, useLabEvents, useNow } from "@/lib/lab/provider";
+import { Kept } from "./tonight";
 
 const SHOWN = [
   "learning",
@@ -80,11 +81,11 @@ export function Lab() {
   const shelf = [...(tools.data ?? [])].reverse();
 
   return (
-    <section className="band hazed with-bats">
-      <Bats />
+    <section className="band forge">
+      <ForgeScene />
       <div className="wrap">
         <SectionHead
-          label="The lab"
+          label="The forge"
           title={
             <>
               <Term word="Familiar">Familiars</Term> at work
@@ -118,15 +119,12 @@ export function Lab() {
                 if (!panels.length) {
                   return (
                     <div className="stack-sm">
-                      <h2>The lab is still. No Familiar is at work.</h2>
+                      <h2>The forge is cold. No Familiar is at work.</h2>
                       <p className="ash">
                         Sealed work runs by itself and needs no Familiar.
                       </p>
                       <div className="actions">
                         <Button href="/interview">Begin an interview</Button>
-                        <Button href="/" variant="ghost">
-                          Back to Tonight
-                        </Button>
                       </div>
                     </div>
                   );
@@ -152,10 +150,10 @@ export function Lab() {
             </Read>
           </div>
 
-          <aside className="shelf-pane stack-sm" aria-label="The Reliquary">
+          <aside className="shelf-pane stack-sm" aria-label="The Library">
             <div className="panel-head">
               <h2>
-                The <Term word="Reliquary" />
+                The <Term word="Library" />
               </h2>
               <span className="ash figures">
                 {plural(shelf.length, "Relic")}
@@ -164,7 +162,7 @@ export function Lab() {
             <Read read={tools}>
               {() => (
                 <>
-                  {shelf.length === 0 ? <p>The Reliquary is empty.</p> : null}
+                  {shelf.length === 0 ? <p>The Library is empty.</p> : null}
                   <div className="tiles">
                     {shelf.map((tool) => {
                       const made = new Date(tool.createdBy.at).getTime();
@@ -185,12 +183,16 @@ export function Lab() {
                     <EmptyShelf niches={6 - shelf.length} />
                   ) : null}
                   <p>
-                    <Link href="/reliquary">Open the Reliquary</Link>
+                    <Link href="/reliquary">Open the Library</Link>
                   </p>
                 </>
               )}
             </Read>
           </aside>
+        </div>
+
+        <div className="kept">
+          <Kept />
         </div>
       </div>
     </section>
