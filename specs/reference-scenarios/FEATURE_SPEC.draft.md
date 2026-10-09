@@ -14,7 +14,6 @@ A night-shift HR clerk at a large legacy company. Every night she copies details
 | ------- | -------------------------------------------- | ------------------------------------------------------------- |
 | Mailbox | A throwaway Gmail account, through a connector | Read-only. Address and access in the local configuration.   |
 | HR      | Our own private OrangeHRM instance           | Address and login in the local configuration, never in the repo. |
-| Bank    | The public ParaBank demo                     | A public demo login. Shared with other people.                |
 
 ## Email Formats
 
@@ -28,6 +27,17 @@ First name: <First>
 Last name: <Last>
 Job title: <Title>
 Start date: <YYYY-MM-DD>
+```
+
+**Leave request** — subject `Leave request: <First> <Last>`
+
+```
+LEAVE REQUEST
+First name: <First>
+Last name: <Last>
+From: <YYYY-MM-DD>
+To: <YYYY-MM-DD>
+Type: <Type>
 ```
 
 **Leaver** — subject `Leaver: <First> <Last>`
@@ -47,7 +57,7 @@ A small script sends these to the mailbox. It is a test aid and is not part of t
 | #   | Ordinary job                                          | Told creepily                    | Tools expected to be created                         | Tools expected to be reused              |
 | --- | ----------------------------------------------------- | -------------------------------- | ---------------------------------------------------- | ---------------------------------------- |
 | 1   | New-hire email → employee record in the HR system     | Binding a fresh soul             | Read new-hire emails; sign in to HR; add an employee | None; the shelf is empty                 |
-| 2   | Newly added employee → account in the bank            | Opening their vein in the ledger | List new employees; sign in to bank; open an account | Sign in to HR                            |
+| 2   | Leave-request email → book leave in the HR system     | Granting a reprieve              | Read leave-request emails; find an employee; book leave | Sign in to HR                            |
 | 3   | Leaver email → end of employment in the HR system     | Laying a soul to rest            | Read leaver emails; end employment                   | Sign in to HR; find an employee          |
 
 The monsters decide the actual tools; this table is what a good result looks like. Because all three touch the HR system, they learn one after another.
@@ -90,7 +100,7 @@ Beats 5 and 6 use different processes, so a refusal on one does not pause the ot
 
 | Real                                                                  | Simulated                                         | Missing                                        |
 | --------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------- |
-| Monsters creating and reusing tools; model-free runs; repair; refusals; the HR system; the bank demo; the voice interview | A daily schedule shown at short intervals; emails sent by a script; a throwaway mailbox | A sandbox for the learning monster; several users; recording by demonstration; pickup from Slack and Linear |
+| Monsters creating and reusing tools; model-free runs; repair; refusals; the HR system; the voice interview | A daily schedule shown at short intervals; emails sent by a script; a throwaway mailbox | A sandbox for the learning monster; several users; recording by demonstration; pickup from Slack and Linear |
 
 ## The Pitch
 
@@ -101,7 +111,7 @@ Beats 5 and 6 use different processes, so a refusal on one does not pause the ot
 
 ## Order of Cuts
 
-If time runs out, cut from the bottom: the voice interview (type the transcript), process 2 and the bank, the Slack and Linear stretch goal, the refused-access beat’s email trigger (show a refused tool instead). Never cut: one monster creating tools from an empty shelf, a model-free rerun, reuse by a second monster, one repair.
+If time runs out, cut from the bottom: the voice interview (type the transcript), process 2, the Slack and Linear stretch goal, the refused-access beat’s email trigger (show a refused tool instead). Never cut: one monster creating tools from an empty shelf, a model-free rerun, reuse by a second monster, one repair.
 
 ## Invariants
 
