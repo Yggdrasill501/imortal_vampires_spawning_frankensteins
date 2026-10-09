@@ -14,7 +14,12 @@ export function readMailSettings(env: NodeJS.ProcessEnv): MailSettings | null {
   if (!Number.isInteger(port) || port < 1 || port > 65_535) {
     throw new Error("LAB_MAIL_PORT is not valid.");
   }
-  return { user, pass, host, port };
+  // Only a mail server on this machine may be reached without encryption.
+  const secure = env.LAB_MAIL_SECURE?.trim() !== "0";
+  if (!secure && !["localhost", "127.0.0.1", "::1"].includes(host)) {
+    throw new Error("LAB_MAIL_SECURE=0 is only allowed for a mail server on this machine.");
+  }
+  return { user, pass, host, port, secure };
 }
 
 /** Strips the mailbox user and password from text before it reaches a tool, a log or a record. */

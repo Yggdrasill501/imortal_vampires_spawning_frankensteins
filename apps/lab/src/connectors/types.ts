@@ -35,6 +35,8 @@ export interface MailSettings {
   pass: string;
   host: string;
   port: number;
+  /** False for a local mail server that speaks plain IMAP. Default: an encrypted connection. */
+  secure?: boolean;
   /** Test fixture only: when present the connector reads these in memory and never connects. */
   fixture?: MemoryMessage[];
 }

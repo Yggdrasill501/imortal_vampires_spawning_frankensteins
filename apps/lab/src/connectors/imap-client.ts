@@ -11,7 +11,8 @@ export function createImapClient(settings: MailSettings): MailClient {
   return new ImapFlow({
     host: settings.host,
     port: settings.port,
-    secure: true,
+    secure: settings.secure !== false,
+    ...(settings.secure === false ? { doSTARTTLS: false } : {}),
     auth: { user: settings.user, pass: settings.pass },
     logger: false,
     disableAutoIdle: true,

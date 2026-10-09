@@ -108,12 +108,18 @@ if (parsed.values['dry-run']) {
 const user = process.env.TEST_MAIL_USER || process.env.GMAIL_USER;
 const pass = process.env.TEST_MAIL_PASS || process.env.GMAIL_PASS;
 const to = process.env.TEST_MAIL_TO || user;
-if (!user || !pass) fail('Error: TEST_MAIL_USER and TEST_MAIL_PASS must be set in .env');
+// TEST_MAIL_HOST set: deliver straight to that mail server (the local mailbox). Unset: send through Gmail.
+const host = process.env.TEST_MAIL_HOST;
+if (!user || (!host && !pass)) fail('Error: TEST_MAIL_USER and TEST_MAIL_PASS must be set in .env');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user, pass },
-});
+const transporter = host
+  ? nodemailer.createTransport({
+      host,
+      port: Number(process.env.TEST_MAIL_PORT || 3025),
+      secure: false,
+      ignoreTLS: true,
+    })
+  : nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
 
 try {
   const info = await transporter.sendMail({ from: user, to, subject, text });

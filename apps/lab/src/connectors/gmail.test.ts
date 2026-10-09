@@ -173,7 +173,14 @@ test("missing settings give a clear error", () => {
     pass: "x",
     host: "imap.gmail.com",
     port: 993,
+    secure: true,
   });
+  assert.equal(
+    readMailSettings({ LAB_MAIL_USER: "a@b.local", LAB_MAIL_PASS: "x", LAB_MAIL_HOST: "localhost", LAB_MAIL_SECURE: "0" })?.secure,
+    false,
+  );
+  // An unencrypted connection is only ever allowed to a mail server on this machine.
+  assert.throws(() => readMailSettings({ LAB_MAIL_USER: "a@b.c", LAB_MAIL_PASS: "x", LAB_MAIL_SECURE: "0" }));
   assert.throws(
     () =>
       readMailSettings({ LAB_MAIL_USER: "mailbox@example.com", LAB_MAIL_PASS: "x", LAB_MAIL_PORT: "many" }),

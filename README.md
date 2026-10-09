@@ -35,7 +35,8 @@ Turborepo and pnpm; Next.js (App Router), React and Tailwind v4 in `apps/web`; F
 | Monster (learns and repairs) | Real, not yet run end to end | `apps/lab/src/monster`, driven through the `cursor-agent` command. Proven standalone on the HR system (learn, reuse, repair); connected to the service, where its path is tested with a scripted agent. |
 | Scheduling | Real | `apps/lab/src/scheduling`: daily at a time, or every N minutes. |
 | Orchestrator (reads the interview) | Real | `apps/lab/src/orchestrator`: one read-only agent call that turns a transcript into proposed processes, limited to the configured systems. |
-| Mailbox connector | Real, not yet run end to end | `apps/lab/src/connectors`: read-only search and read over IMAP. Tested against an in-memory mailbox. |
+| Mailbox connector | Real | `apps/lab/src/connectors`: read-only search and read over IMAP. Anything but those two actions is refused. |
+| Mailbox | Simulated | A local mail server in Docker (`docker-compose.yml`), filled by `scripts/send-test-emails.mjs`. The connector reads it over the same protocol a real mailbox uses; pointing it at Gmail needs only an app password in `.env`. |
 | ElevenLabs voice interview | Real, needs configuration | The web app has the voice client; it is off until an agent id is set, and typing still works |
 
 ## Layout
