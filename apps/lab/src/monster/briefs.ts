@@ -11,9 +11,16 @@ export const RULES = [
   "Never put a username or password in a tool. Use the logins the tool is handed.",
   "Find things on a page by their role and visible name. Wait explicitly after anything that changes the page.",
   "The chain is a straight list. The first step lists the incoming items.",
+  "The first step only finds the incoming items and hands on what it found, unparsed. Taking fields out of an item is a later step, so one odd item fails by itself and does not stop the rest.",
   "Choose a proof that is present only when the work really succeeded.",
   "Test every tool, then run the whole chain on the first example.",
 ] as const;
+
+/** What a tool can ask of each connector. Connectors are generic; none knows any kind of message. */
+const CONNECTOR_NOTES: Record<string, string> = {
+  gmail:
+    ' A read-only mailbox. A tool that lists "gmail" in its `connectors` receives `connectors.gmail` with exactly two actions. `await connectors.gmail.call("search", { query, subject, from, sinceDays, unreadOnly, limit })` returns `{ messages: [{ id, subject, from, date }] }`, newest first; every argument is optional, `limit` defaults to 20 and is at most 50. `await connectors.gmail.call("read", { id })` returns `{ id, subject, from, date, text }`, where `text` is the plain-text body. The `id` is stable for the same message, so a source tool may use it as the item id. Nothing else exists: the connector cannot send, delete, move or mark a message, and any other action throws. You have no browser access to the mailbox; test a mail tool with `./kit test`. Parsing a message into fields is the tool\'s job.',
+};
 
 export const REPAIR_RULES = [
   "Change only the broken tool. Its name, input fields and output fields stay the same.",
@@ -243,7 +250,7 @@ function sitesText(sites: BriefSite[], connectors: string[]): string {
     const start = site.url ?? `https://${site.host}/`;
     return `- Site \`${site.host}\`, starting at ${start}. ${site.login ? "A login is held for it." : "It needs no login."}`;
   });
-  for (const connector of connectors) lines.push(`- Connector \`${connector}\`.`);
+  for (const connector of connectors) lines.push(`- Connector \`${connector}\`.${CONNECTOR_NOTES[connector] ?? ""}`);
   if (sites.some((site) => site.login)) {
     lines.push(
       "",

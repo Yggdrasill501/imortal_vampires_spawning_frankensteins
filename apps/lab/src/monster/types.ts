@@ -1,3 +1,4 @@
+import type { MailSettings } from "../connectors/types.ts";
 import type { ToolMeta } from "../shelf/types.ts";
 import type { Chain, Item, Login } from "../runner/types.ts";
 
@@ -71,6 +72,8 @@ export interface KitContext {
   sites: string[];
   connectors: string[];
   logins: Record<string, Login>;
+  /** The mailbox behind a mail connector, when this job is invited to one. Removed when the run ends. */
+  mail?: MailSettings | null;
   repairTool?: string;
   headless: boolean;
 }

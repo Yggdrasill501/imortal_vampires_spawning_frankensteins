@@ -134,7 +134,7 @@ function Invite({
         const had = invitation.sites.find((s) => s.site === need.site);
         row = {
           ...need,
-          loginHeld: had?.loginHeld ?? false,
+          loginHeld: had?.loginHeld ?? need.loginHeld ?? false,
           grantedAt: had?.grantedAt ?? null,
           neededBy: [],
         };

@@ -46,7 +46,7 @@ export async function sealKit(workspace: string): Promise<void> {
     const context = await readContext(workspace);
     await writeFile(
       contextPath(workspace),
-      `${JSON.stringify({ ...context, logins: {} }, null, 2)}\n`,
+      `${JSON.stringify({ ...context, logins: {}, mail: null }, null, 2)}\n`,
       { mode: 0o600 },
     );
   } catch {
@@ -152,7 +152,7 @@ export async function kitTest(workspace: string, name: string, input: unknown): 
         `There is no tool named ${name} in tools/ or on the shelf.`,
     };
   }
-  const runner = new Runner({ shelfDir: stage.dir, headless: context.headless });
+  const runner = new Runner({ shelfDir: stage.dir, headless: context.headless, mail: context.mail ?? null });
   const result = await runner.replayTool(name, version, input, scopeOf(context));
   return {
     tool: name,
@@ -186,7 +186,7 @@ export async function kitChain(
     chain = { steps: file.steps.slice(0, last + 1), check: file.check };
   }
 
-  const runner = new Runner({ shelfDir: stage.dir, headless: context.headless });
+  const runner = new Runner({ shelfDir: stage.dir, headless: context.headless, mail: context.mail ?? null });
   const scope = scopeOf(context);
   let item: Item;
   let listed: unknown;

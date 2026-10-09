@@ -1,17 +1,17 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, afterEach, before, test } from "node:test";
-import type { Interview, Invitation, LabEvent } from "@repo/contract";
+import type { Interview, Invitation, LabEvent, ProcessDetail, Run } from "@repo/contract";
 import { sql } from "@repo/db";
 import { agentEnvironment, REPO_ROOT } from "../src/config.ts";
 import { startDispatcher } from "../src/dispatcher.ts";
 import { createLab, shutdownLab, waitForDatabase } from "../src/main.ts";
 import { recover } from "../src/recovery.ts";
 import { buildServer } from "../src/server.ts";
-import type { OrchestratorSeam, ProcessProposal } from "../src/seams/types.ts";
+import type { MonsterSeam, OrchestratorSeam, ProcessProposal, Seams } from "../src/seams/types.ts";
 
 const TEST_DATABASE_URL =
   process.env.LAB_TEST_DATABASE_URL ??
@@ -41,7 +41,7 @@ after(async () => {
   await shutdownLab(current.lab, current.server);
 });
 
-async function start(seams?: { orchestrator?: OrchestratorSeam }) {
+async function start(seams?: Partial<Seams>, production = false) {
   const lab = await createLab({
     config: {
       databaseUrl: TEST_DATABASE_URL,
@@ -53,6 +53,7 @@ async function start(seams?: { orchestrator?: OrchestratorSeam }) {
       logLevel: "silent",
     },
     seams,
+    production,
   });
   await sql`TRUNCATE interview, invitation_site RESTART IDENTITY CASCADE`.execute(lab.db);
   const server = await buildServer(lab);
@@ -209,6 +210,102 @@ test("unknown routes use the contract error shape", async () => {
   assert.equal(body.code, "not_found");
   assert.equal(body.error, "Nothing by that name exists in the lab.");
 });
+
+test("a learned process is checked by the lab, sealed, and run with no model", async () => {
+  // The real runner, install check and scheduling; only the agent and the reader are scripted.
+  const { url } = await start(
+    { orchestrator: scriptedOrchestrator([proposal("Greet", "example.com")]), monster: scriptedMonster },
+    true,
+  );
+  const saved = await json<Interview>(url, "/interviews", { method: "POST", body: JSON.stringify(interviewBody) });
+  await waitUntil(async () => (await json<Interview>(url, `/interviews/${saved.body.id}`)).body.status === "proposed");
+  await json(url, "/invitation", {
+    method: "PUT",
+    body: JSON.stringify({
+      sites: [{ site: "example.com", kind: "website", login: { name: "Admin", password: "secret" } }],
+    }),
+  });
+  const started = await json<{ interview: Interview }>(url, `/interviews/${saved.body.id}/start`, { method: "POST" });
+  const processId = started.body.interview.processes[0]!.id;
+  const read = async () => (await json<ProcessDetail>(url, `/processes/${processId}`)).body;
+  await waitUntil(async () => ["awaiting_seal", "failed_to_learn"].includes((await read()).status), 20_000);
+  const learned = await read();
+  assert.equal(learned.status, "awaiting_seal", learned.reason ?? "");
+
+  const tools = await json<{ tools: Array<{ name: string }> }>(url, "/tools");
+  assert.deepEqual(tools.body.tools.map((tool) => tool.name).sort(), ["greet_person", "list_things"]);
+  const verification = await json<{ runs: Run[] }>(url, `/runs?processId=${processId}`);
+  assert.equal(verification.body.runs.length, 1);
+  assert.equal(verification.body.runs[0]?.status, "passed");
+  assert.equal(verification.body.runs[0]?.modelCalls, 0);
+  assert.equal(verification.body.runs[0]?.proofValue, "Hello Grace.");
+
+  const sealed = await json<ProcessDetail>(url, `/processes/${processId}/seal`, { method: "POST" });
+  assert.equal(sealed.body.status, "sealed");
+  assert.ok(sealed.body.nextRunAt, "a sealed process has a next run time");
+
+  // Everything that was waiting while it learned is already handled, so a run now finds nothing new.
+  await json(url, `/processes/${processId}/run`, { method: "POST" });
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const after = await json<{ runs: Run[] }>(url, `/runs?processId=${processId}`);
+  assert.equal(after.body.runs.length, 1);
+  assert.equal((await read()).status, "sealed");
+});
+
+const scriptedMonster: MonsterSeam = {
+  async work(input) {
+    const draft = async (name: string, meta: object, code: string) => {
+      const folder = path.join(input.workspace, "tools", name);
+      await mkdir(folder, { recursive: true });
+      await writeFile(path.join(folder, "meta.json"), JSON.stringify({ name, sites: [], connectors: [], effect: "reads", ...meta }));
+      await writeFile(path.join(folder, "tool.mjs"), code);
+      return folder;
+    };
+    const folders = [
+      await draft(
+        "list_things",
+        { description: "Lists the things.", lists_items: true, input: {}, output: { items: "The things." } },
+        `export default async function listThings() {
+  return { items: [
+    { id: "1", label: "One", data: { name: "Ada" } },
+    { id: "2", label: "Two", data: { name: "Grace" } },
+  ] };
+}
+`,
+      ),
+      await draft(
+        "greet_person",
+        { description: "Greets one person.", lists_items: false, input: { name: "The name." }, output: { greeting: "The greeting." } },
+        `export default async function greetPerson({ input }) {
+  return { greeting: "Hello " + input.name + "." };
+}
+`,
+      ),
+    ];
+    await writeFile(
+      path.join(input.workspace, "process.json"),
+      JSON.stringify({
+        steps: [
+          { id: "source", tool: "list_things", input: {} },
+          { id: "greet", tool: "greet_person", input: { name: "$item.name" } },
+        ],
+        check: "$steps.greet.greeting",
+        check_name: "Greeting",
+        check_description: "The greeting that was made.",
+      }),
+    );
+    for (const folder of folders) {
+      const refused = await input.hooks.createTool(folder);
+      if (refused) return { outcome: "gave_up", error: refused.error };
+    }
+    const refused = await input.hooks.saveProcess(["list_things", "greet_person"], {
+      name: "Greeting",
+      description: "The greeting that was made.",
+    });
+    if (refused) return { outcome: "gave_up", error: refused.error };
+    return { outcome: "done" };
+  },
+};
 
 function proposal(name: string, site: string): ProcessProposal {
   return {

@@ -25,7 +25,6 @@ export function buildPrompt(input: PromptInput): string {
 
   const parts = [
     `You read the transcript of an interview in which a person described their daily work. Propose the processes a software agent could later learn to perform in a browser. You only propose: you touch no website, create nothing and start nothing.`,
-    `Language reported for the interview: ${input.language}. This comes from the browser and can be wrong.`,
     `Known systems (the only sites you may name, written exactly as the "site" value):\n${systems}`,
     `Transcript:\n${transcript}`,
     `Rules:
@@ -36,7 +35,7 @@ export function buildPrompt(input: PromptInput): string {
 - Propose only sites from the known systems list. Every process needs at least one site.
 - A task that needs a system not on the known list is not proposed; put it in "skipped" with one sentence saying why.
 - The schedule is what the person said: {"kind":"daily","time":"HH:MM"} for every day at a time, or {"kind":"every","minutes":N} with N from 1 to 1440. When the person did not say, use {"kind":"daily","time":"${DEFAULT_SCHEDULE.time}"}.
-- Write "name", "description", "successCriterion" and "source" in the language the person actually speaks in the transcript, whatever language was reported.
+- Write every text field ("name", "description", "successCriterion", "source", and the "skipped" entries) in the same language as the Person's lines in the transcript. Use that one language for all fields of all processes.
 - "name" is short and in the person's words. "description" says what the person does, step by step, including how long it takes and how often when the person said so. "successCriterion" is how the person knows it worked. "source" is one sentence on where each piece of incoming work comes from.
 - Answer with one JSON document and nothing else: no explanation, no code fence.`,
     `Answer format:

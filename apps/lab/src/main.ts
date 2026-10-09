@@ -17,12 +17,14 @@ export async function createLab(options: {
   const config = loadConfig(options.config);
   await ensureLabDirs(config);
   const db = createDatabase(config.databaseUrl);
-  return {
+  // The built parts need the lab they belong to, which exists only once this returns.
+  const self: { lab?: Lab } = {};
+  const lab: Lab = {
     config,
     db,
     events: new EventBus(),
     seams: createSeams({
-      ...(options.production ? productionSeams(config) : {}),
+      ...(options.production ? productionSeams(config, () => self.lab!) : {}),
       ...options.seams,
     }),
     dbReady: false,
@@ -38,6 +40,8 @@ export async function createLab(options: {
       },
     },
   };
+  self.lab = lab;
+  return lab;
 }
 
 export async function startLab(options: {

@@ -154,6 +154,11 @@ export interface SiteRef {
   /** Connectors are read-only in this version; shown as "mailbox, read only". */
   readOnly: boolean;
   loginNeeded: boolean;
+  /**
+   * Set on a process's sites: whether the lab already holds a login for it,
+   * so the invitation form need not ask. The login itself is never returned.
+   */
+  loginHeld?: boolean;
 }
 
 export interface InvitationSite extends SiteRef {

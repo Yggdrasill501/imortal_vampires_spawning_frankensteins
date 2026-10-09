@@ -94,6 +94,7 @@ export async function processSummary(lab: Lab, trx: Trx, id: string): Promise<Pr
   const row = await trx.selectFrom("process").selectAll().where("id", "=", id).executeTakeFirst();
   if (!row) return null;
   const sites = await trx.selectFrom("process_site").selectAll().where("process_id", "=", id).execute();
+  const logins = await readLogins(lab.config);
   const last = await trx
     .selectFrom("run")
     .selectAll()
@@ -134,7 +135,7 @@ export async function processSummary(lab: Lab, trx: Trx, id: string): Promise<Pr
     successCriterion: row.success_criterion,
     status: row.status as ProcessSummary["status"],
     repaired: row.repaired,
-    sites: sites.map(siteRef),
+    sites: sites.map((site) => ({ ...siteRef(site), loginHeld: loginHeld(logins, site.site) })),
     schedule: scheduleOf(row),
     nextRunAt: row.next_run_at ? iso(row.next_run_at) : null,
     lastRun,

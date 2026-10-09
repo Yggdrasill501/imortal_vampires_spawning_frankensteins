@@ -21,7 +21,7 @@ Turborepo and pnpm; Next.js (App Router), React and Tailwind v4 in `apps/web`; F
 
 ## The real / simulated / missing table
 
-"Built, not yet wired in" means the code exists on its own, but the lab service still calls a stand-in for it (`apps/lab/src/seams/registry.ts`).
+"Real, not yet run end to end" means the part is connected in the lab service and covered by tests, but a full night on the real systems has not been recorded yet.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -30,11 +30,12 @@ Turborepo and pnpm; Next.js (App Router), React and Tailwind v4 in `apps/web`; F
 | Lab service core | Real | Fastify service: interviews, processes, invitation, runs, ticks, events |
 | Mock mode data | Simulated | By default the web app uses an in-browser simulation kept in `sessionStorage`, marked "Simulated data" |
 | Test emails | Simulated | Sent by `scripts/send-test-emails.mjs` to a throwaway mailbox |
-| Runner (runs a chain with no model) | Built, not yet wired in | `apps/lab/src/runner`, with tests and its own command. The service's stand-in answers "The runner is not built yet." |
-| Install check (shelf) | Built, not yet wired in | `apps/lab/src/shelf`, with tests. The service's stand-in answers "The install check is not built yet." |
-| Monster (learns and repairs) | Built, not yet wired in | `apps/lab/src/monster`: learn and repair sessions driven through the `cursor-agent` command, the starting kit, a standalone command, and an adapter for the service that is not registered. No automated tests. |
-| Scheduling | Built, not yet wired in | `apps/lab/src/scheduling`: the next-run-time function, with tests. The service's stand-in returns no next run time, so only "Run now" would start a tick. |
-| Orchestrator (reads the interview) | **Missing** | Stand-in that proposes nothing; a saved interview ends as "nothing found" |
+| Runner (runs a chain with no model) | Real | `apps/lab/src/runner`. Runs every saved chain, the lab's own check after learning, and the rerun after a repair. Covered by tests, including one through the service. |
+| Install check (shelf) | Real | `apps/lab/src/shelf`. Every tool a monster writes passes it before it is installed. |
+| Monster (learns and repairs) | Real, not yet run end to end | `apps/lab/src/monster`, driven through the `cursor-agent` command. Proven standalone on the HR system (learn, reuse, repair); connected to the service, where its path is tested with a scripted agent. |
+| Scheduling | Real | `apps/lab/src/scheduling`: daily at a time, or every N minutes. |
+| Orchestrator (reads the interview) | Real | `apps/lab/src/orchestrator`: one read-only agent call that turns a transcript into proposed processes, limited to the configured systems. |
+| Mailbox connector | Real, not yet run end to end | `apps/lab/src/connectors`: read-only search and read over IMAP. Tested against an in-memory mailbox. |
 | ElevenLabs voice interview | Real, needs configuration | The web app has the voice client; it is off until an agent id is set, and typing still works |
 
 ## Layout

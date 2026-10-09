@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { readMailSettings } from "../connectors/settings.ts";
 import type { Login } from "../runner/types.ts";
 import { createDescriber, makeRedactor, type Action } from "./actions.ts";
 import { runAgent } from "./agent.ts";
@@ -60,6 +61,7 @@ export async function learn(brief: LearnBrief, options: MonsterOptions): Promise
     sites: access.sites,
     connectors: access.connectors,
     logins: access.logins,
+    mail: access.mail,
     headless: access.headless,
   });
   const text = buildLearnBrief({
@@ -90,6 +92,7 @@ export async function repair(brief: RepairBrief, options: MonsterOptions): Promi
     sites: access.sites,
     connectors: access.connectors,
     logins: access.logins,
+    mail: access.mail,
     repairTool: brief.tool,
     headless: access.headless,
   });
@@ -137,7 +140,10 @@ async function runSession(
   access: ReturnType<typeof accessOf>,
   options: MonsterOptions,
 ): Promise<Session> {
-  const redact = makeRedactor(Object.values(access.logins));
+  const redact = makeRedactor([
+    ...Object.values(access.logins),
+    ...(access.mail ? [{ username: access.mail.user, password: access.mail.pass }] : []),
+  ]);
   const describe = createDescriber(options.workspace);
   let tokens: Tokens = { input: 0, output: 0, cached: 0 };
   try {
@@ -191,6 +197,8 @@ function accessOf(sites: BriefSite[], connectors: string[], options: MonsterOpti
     connectors,
     logins,
     passwords: Object.values(logins).map((login) => login.password),
+    // Only a job that is invited to a connector is handed the mailbox behind it.
+    mail: connectors.length > 0 ? readMailSettings(process.env) : null,
     headless: options.headless ?? process.env.LAB_HEADLESS === "1",
   };
 }
