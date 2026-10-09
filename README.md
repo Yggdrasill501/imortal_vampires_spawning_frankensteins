@@ -6,6 +6,7 @@
 
 Hackathon entry for the Frankenstein topic (From Dusk Till Dawn #01, Prague): an agent that builds its own capabilities, tests them, installs them and uses them again later.
 
+- **See the web app:** <https://imortal-vampires-spawning-frankensteins-310bhu8or.vercel.app/>. This is a sample address whose only purpose is to demonstrate the web app. Everything on it is simulated data, marked "Simulated data" on every screen: no lab service, no agents and no real systems are behind it, and it is not the system that produced the results below.
 - **How we meet each criterion, with evidence:** [Criteria.md](Criteria.md)
 - **What it costs and what it saves:** [ECONOMY.md](ECONOMY.md)
 - **Recorded agent sessions, unedited except for the host name:** [`evidence/`](evidence)
