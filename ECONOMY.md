@@ -40,7 +40,7 @@ To get an order of magnitude we **assume** the list prices of a mid-range model:
 | Session | Input | Output | Cached | Total |
 | --- | --- | --- | --- | --- |
 | Learn "New hire" | $0.95 | $0.28 | $0.52 | **$1.75** |
-| Learn "Leave requests" | $0.66 | $0.43 | $1.01 | **$2.10** |
+| Learn "Leave requests" | $0.66 | $0.43 | $1.01 | **$2.09** |
 | Repair one tool | $0.66 | $0.04 | $0.17 | **$0.87** |
 
 Most of the token count is cached context being re-read, which is cheap. If caching were not available, the same sessions would cost roughly 6 to 11 dollars each at these prices.
