@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { GMAIL_ACTIONS, createGmailConnector } from "./gmail.ts";
+import { GMAIL_ACTIONS, createGmailConnector, stripHtml } from "./gmail.ts";
 import { createMemoryClient, type MemoryMailClient, type MemoryMessage } from "./memory-client.ts";
 import { connectorsFor } from "./registry.ts";
 import { readMailSettings, redactMail } from "./settings.ts";
@@ -114,6 +114,11 @@ test("read returns the plain text body", async () => {
   await assert.rejects(handle.call("read", { id: "<missing@example.com>" }), /No message has the id/);
   await assert.rejects(handle.call("read", {}), /needs a message id/);
   await handle.close();
+});
+
+test("html is turned into text and entities are decoded exactly once", () => {
+  assert.equal(stripHtml("<p>Hello &amp; welcome.</p><p>Second line.</p>"), "Hello & welcome.\nSecond line.");
+  assert.equal(stripHtml("<p>Write &amp;lt;b&amp;gt; for bold, &amp;amp; for &amp;.</p>"), "Write &lt;b&gt; for bold, &amp; for &.");
 });
 
 test("an unknown action is refused without touching the client", async () => {

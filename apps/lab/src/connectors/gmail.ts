@@ -232,17 +232,19 @@ async function readStream(content: Readable): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-function stripHtml(html: string): string {
+/** Exported for tests. */
+export function stripHtml(html: string): string {
   return html
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, "")
     .replace(/<br\s*\/?>|<\/p>|<\/div>|<\/tr>|<\/li>/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
+    // Last, so an escaped entity such as "&amp;lt;" becomes the text "&lt;", not "<".
+    .replace(/&amp;/g, "&")
     .replace(/[ \t]+\n/g, "\n")
     .trim();
 }
